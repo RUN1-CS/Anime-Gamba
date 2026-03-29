@@ -12,7 +12,7 @@
         <table>
             <tr>
                 <td><strong>Username: </strong></td>
-                <td><span id="username"></span></td>
+                <td><a href="list.php"><span id="username"></span></a></td>
             </tr>
             <tr>
                 <td><strong>Score: </strong></td>

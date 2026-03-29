@@ -2,9 +2,7 @@ WebSocket = new WebSocket("ws://localhost:3000");
 
 let data = null;
 
-WebSocket.onopen = () => {
-  console.log("WebSocket connection established");
-};
+WebSocket.onopen = () => {};
 
 WebSocket.onmessage = (event) => {
   const data = JSON.parse(event.data);
@@ -15,23 +13,22 @@ WebSocket.onmessage = (event) => {
     window.location.href = "index.php";
   } else if (data.data) {
     data = data.data;
-    console.log("Received data:", data);
   } else alert("Login failed: " + data.message);
 };
 
 WebSocket.onclose = () => {
-  console.log("WebSocket connection closed");
   setTimeout(() => {
-    WebSocket = new WebSocket("ws://localhost:3000");
+    location.reload();
   }, 3000);
 };
 
 WebSocket.onerror = (error) => {
-  console.error("WebSocket error:", error);
+  setTimeout(() => {
+    location.reload();
+  }, 3000);
 };
 
 addEventListener("DOMContentLoaded", () => {
-  console.log("DOM fully loaded and parsed");
   const forms = document.querySelectorAll("form");
 
   forms.forEach((form) => {

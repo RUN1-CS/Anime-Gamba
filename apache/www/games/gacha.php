@@ -16,7 +16,9 @@
         <p>Welcome to the Gacha game! Here you can spend your points to get random waifus. Each waifu has a different rarity and point cost. Try your luck and see which waifu you get!</p>
         <button id="gacha-button">Spin the Gacha!</button>
         <span id="gacha-message">Spin the Gacha!</span>
-        <div id="gacha-result"></div>
+        <div id="gacha-result">
+            <img src="" alt="Waifu Image" id="waifu-image">
+        </div>
     </main>
 </body>
 </html>

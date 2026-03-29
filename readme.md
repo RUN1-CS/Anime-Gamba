@@ -6,7 +6,7 @@ A stylish anime-themed gambling simulation project.
 
 - Anime-inspired visual design
 - Interactive gambling mechanics
-- Virtual currency system (Not yet)
+- Score (Based on favorites)
 
 ## Installation and Usage
 
@@ -17,6 +17,10 @@ cp .env.example .env
 # Don't forget to change the info inside
 docker compose up --build
 ```
+
+## AniList API
+
+API is free for everyone but rate limited, so watch out.
 
 ## License
 

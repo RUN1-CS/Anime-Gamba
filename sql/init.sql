@@ -13,11 +13,3 @@ CREATE TABLE sessions (
     token VARCHAR(255) UNIQUE NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
-CREATE TABLE waifus (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    image_url VARCHAR(255) NOT NULL,
-    score INTEGER DEFAULT 0,
-    rarity VARCHAR(50) NOT NULL
-);

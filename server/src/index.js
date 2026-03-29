@@ -3,6 +3,7 @@ const pg = require("pg");
 const bcrypt = require("bcrypt");
 
 const config = require("./config.json");
+const { getRandomFemaleCharacter } = require("./anilistAPI.js");
 
 const dbConfig = {
   user: process.env.POSTGRES_USER || config.POSTGRES_USER,
@@ -133,30 +134,15 @@ wss.on("connection", (ws) => {
           }
 
           const row = res.rows[0];
-          const waifuIds = Array.isArray(row.waifus)
-            ? row.waifus.map((id) => String(id))
-            : [];
-
-          let waifuNames = [];
-          if (waifuIds.length > 0) {
-            const uniqueWaifuIds = [...new Set(waifuIds)]
-              .map((id) => Number.parseInt(id, 10))
-              .filter(Number.isInteger);
-
-            const waifuRes = await pool.query(
-              "SELECT id, name, rarity FROM waifus WHERE id = ANY($1::int[])",
-              [uniqueWaifuIds],
-            );
-
-            const waifuById = new Map(
-              waifuRes.rows.map((waifu) => [
-                String(waifu.id),
-                `${waifu.name} (${waifu.rarity})`,
-              ]),
-            );
-
-            waifuNames = waifuIds.map((id) => waifuById.get(id) || id);
-          }
+          const waifuNames = row.waifus.map((entry) => {
+            if (typeof entry === "string") {
+              return entry;
+            } else if (entry && typeof entry === "object" && entry.name) {
+              return entry.name;
+            } else {
+              return String(entry);
+            }
+          });
 
           ws.send(
             JSON.stringify({
@@ -196,60 +182,50 @@ wss.on("connection", (ws) => {
           }
 
           const userId = sessionRes.rows[0].user_id;
-          const waifuId = Number.parseInt(data.waifuId, 10);
-          if (!Number.isInteger(waifuId)) {
-            ws.send(
-              JSON.stringify({ success: false, message: "Invalid waifuId" }),
-            );
-            return;
-          }
 
-          const waifuRes = await pool.query(
-            "SELECT id, name, rarity, score FROM waifus WHERE id = $1",
-            [waifuId],
-          );
-          if (waifuRes.rows.length === 0) {
-            ws.send(
-              JSON.stringify({ success: false, message: "Waifu not found" }),
-            );
-            return;
-          }
+          const waifuData = await getRandomFemaleCharacter();
 
-          const waifu = waifuRes.rows[0];
-
-          const userWaifusRes = await pool.query(
-            "SELECT COALESCE(waifus, '[]'::jsonb) AS waifus FROM users WHERE id = $1",
-            [userId],
-          );
-          const userWaifus = Array.isArray(userWaifusRes.rows[0]?.waifus)
-            ? userWaifusRes.rows[0].waifus.map((id) => String(id))
-            : [];
-
-          if (userWaifus.includes(String(waifuId))) {
+          if (!waifuData) {
             ws.send(
               JSON.stringify({
                 success: false,
-                message: "Waifu already owned",
-                waifu: String(waifuId),
+                message: "Failed to get waifu",
               }),
             );
             return;
           }
 
-          console.log(`Adding waifu ID ${waifuId} to user ID ${userId}`);
-          const waifuScore = waifu.score;
+          const waifuName =
+            typeof waifuData === "string" ? waifuData : waifuData.name;
+          const waifuFavourites =
+            typeof waifuData === "object" && waifuData !== null
+              ? Number(waifuData.favourites) || 0
+              : 0;
 
-          const updateRes = await pool.query(
-            "UPDATE users SET waifus = COALESCE(waifus, '[]'::jsonb) || to_jsonb($1::text), score = score + $2 WHERE id = $3 RETURNING score",
-            [String(waifuId), waifuScore, userId],
+          const waifuRes = await pool.query(
+            "UPDATE users SET waifus = COALESCE(waifus, '[]'::jsonb) || to_jsonb($1::text) WHERE id = $2 RETURNING waifus",
+            [waifuName, userId],
           );
+          const scoreRes = await pool.query(
+            "UPDATE users SET score = COALESCE(score, 0) + $1 WHERE id = $2 RETURNING score",
+            [waifuFavourites, userId],
+          );
+
+          if (waifuRes.rows.length === 0 || scoreRes.rows.length === 0) {
+            ws.send(
+              JSON.stringify({
+                success: false,
+                message: "User not found",
+              }),
+            );
+            return;
+          }
+
           ws.send(
             JSON.stringify({
               success: true,
-              waifu: String(waifuId),
-              waifuDisplay: `${waifu.name} (${waifu.rarity})`,
-              addedScore: waifuScore,
-              newScore: updateRes.rows[0].score,
+              waifu: waifuName,
+              favourites: waifuFavourites,
             }),
           );
         } catch (err) {
