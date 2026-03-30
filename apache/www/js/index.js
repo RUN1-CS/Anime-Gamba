@@ -21,6 +21,7 @@ addEventListener("DOMContentLoaded", () => {
 
   WebSocket.onmessage = (event) => {
     const data = JSON.parse(event.data);
+    if (!data.success) return;
     usernamePage.textContent = data.data.username;
     valuePage.textContent = data.data.value;
     waifusPage.innerHTML =
@@ -39,4 +40,8 @@ addEventListener("DOMContentLoaded", () => {
       location.reload();
     }, 3000);
   };
+  document.getElementById("logout").addEventListener("click", () => {
+    sessionStorage.removeItem("sessionId");
+    location.href = "login.php";
+  });
 });
