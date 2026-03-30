@@ -2,7 +2,6 @@ addEventListener("DOMContentLoaded", () => {
   WebSocket = new WebSocket("ws://localhost:3000");
 
   WebSocket.onopen = () => {
-    console.log("WebSocket connection established");
     const sessionId = sessionStorage.getItem("sessionId");
     WebSocket.send(JSON.stringify({ type: "getData", sessionId }));
   };
@@ -19,8 +18,6 @@ addEventListener("DOMContentLoaded", () => {
 
   WebSocket.onmessage = (event) => {
     const data = JSON.parse(event.data);
-    console.log("Received data:", data);
-
     //const div = document.getElementById("gacha-result");
     const msg = document.getElementById("gacha-message");
     if (data.waifu) {
@@ -66,20 +63,14 @@ async function getCharacterByName(fullName) {
     const result = await response.json();
     const character = result.data.Character;
     if (!character) {
-      console.log("No character found with that name.");
       return null;
     }
 
     if (character) {
       // Optional: Double check if she is female
       if (character.gender === "Female") {
-        console.log("Found:", character.name.full);
         return character;
-      } else {
-        console.log("Character found, but gender is:", character.gender);
       }
-    } else {
-      console.log("No character found with that name.");
     }
   } catch (error) {
     console.error("Error fetching character:", error);

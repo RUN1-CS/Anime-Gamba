@@ -1,6 +1,6 @@
-async function getRandomFemaleCharacter() {
-  const url = "https://graphql.anilist.co";
+const url = "https://graphql.anilist.co";
 
+async function getRandomFemaleCharacter() {
   // Pick a random page between 1 and 20 to get variety
   const randomPage = Math.floor(Math.random() * 20) + 1;
 
@@ -46,7 +46,6 @@ async function getRandomFemaleCharacter() {
         name: chosenOne.name.full,
         favourites: Number(chosenOne.favourites) || 0,
       };
-      console.log("Chosen character:", waifuData);
       return waifuData;
     } else {
       console.log("No female characters found on this page, retrying...");
@@ -57,7 +56,54 @@ async function getRandomFemaleCharacter() {
     return null;
   }
 }
+async function getCharacter(fullName) {
+  const query = `
+        query ($name: String) {
+          Character (search: $name) {
+            name { full }
+            favourites
+            gender
+            image { large }
+          }
+        }`;
+
+  const variables = { name: fullName };
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query, variables }),
+    });
+
+    const result = await response.json();
+
+    if (!result.data || !result.data.Character) {
+      return JSON.stringify({
+        success: false,
+        message: "Character not found",
+      });
+    }
+
+    const char = result.data.Character;
+
+    const favs = char.favourites;
+
+    return JSON.stringify({
+      success: true,
+      favs: favs,
+      waifuImg: char.image.large,
+    });
+  } catch (error) {
+    console.error("Error fetching character:", error);
+    return JSON.stringify({
+      success: false,
+      message: "Error fetching character data",
+    });
+  }
+}
 
 module.exports = {
   getRandomFemaleCharacter,
+  getCharacter,
 };

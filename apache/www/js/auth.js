@@ -33,8 +33,9 @@ addEventListener("DOMContentLoaded", () => {
 
   forms.forEach((form) => {
     form.addEventListener("submit", (event) => {
-      console.log("Form submitted");
       event.preventDefault();
+      if (WebSocket.readyState !== WebSocket.OPEN) return;
+
       if (form.login) {
         const username = form.username.value;
         const password = form.password.value;
@@ -67,8 +68,10 @@ addEventListener("DOMContentLoaded", () => {
     });
   });
   const logoutButton = document.getElementById("logout");
-  logoutButton.addEventListener("click", () => {
-    sessionStorage.removeItem("sessionId");
-    window.location.href = "auth.php";
-  });
+  if (logoutButton) {
+    logoutButton.addEventListener("click", () => {
+      sessionStorage.removeItem("sessionId");
+      window.location.href = "auth.php";
+    });
+  }
 });

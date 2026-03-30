@@ -1,19 +1,19 @@
 function rarity(rating) {
-  const maxRating = 170000;
+  const maxRating = 35000;
   const percentage = (rating / maxRating) * 100;
 
   if (percentage >= 90) return "Mythic";
-  else if (percentage >= 75) return "Legendary";
-  else if (percentage >= 50) return "Epic";
-  else if (percentage >= 25) return "Rare";
-  else if (percentage >= 10) return "Uncommon";
+  else if (percentage >= 60) return "Legendary";
+  else if (percentage >= 40) return "Epic";
+  else if (percentage >= 35) return "Rare";
+  else if (percentage >= 20) return "Uncommon";
   else return "Common";
 }
 
 function getColorByRarity(rarity) {
   const colors = {
-    Mythic: "#FFD700",
-    Legendary: "#C0C0C0",
+    Mythic: "#ff006adc",
+    Legendary: "#fdf000",
     Epic: "#CD7F32",
     Rare: "#1E90FF",
     Uncommon: "#32CD32",
@@ -23,40 +23,19 @@ function getColorByRarity(rarity) {
 }
 
 async function getCharacter(fullName) {
-  const url = "https://graphql.anilist.co";
-
-  const query = `
-    query ($name: String) {
-      Character (search: $name) {
-        name { full }
-        favourites
-        gender
-        image { large }
+  WebSocket.send(JSON.stringify({ type: "getCharacter", name: fullName }));
+  return new Promise((resolve) => {
+    WebSocket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.success) {
+        const waifuData = JSON.parse(data.character);
+        resolve({ waifuImg: waifuData.waifuImg, favs: waifuData.favs });
+      } else {
+        console.error("Failed to get character data:", data.message);
+        resolve({ success: false, message: data.message });
       }
-    }`;
-
-  const variables = { name: fullName };
-
-  try {
-    const response = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query, variables }),
-    });
-
-    const result = await response.json();
-    const char = result.data.Character;
-
-    if (!char) {
-      return;
-    }
-
-    const favs = char.favourites;
-
-    return { favs: favs, waifuImg: char.image.large };
-  } catch (error) {
-    console.error("Error fetching rating:", error);
-  }
+    };
+  });
 }
 
 let list = [];
@@ -79,6 +58,7 @@ function appendListItem(waifu, img, favs, active = false) {
   caption.style.backgroundColor = getColorByRarity(rarity(favs));
   listItem.appendChild(caption);
   listElement.appendChild(listItem);
+  listItem.classList.add("active");
 }
 
 function loadWaifu(index) {
@@ -91,6 +71,9 @@ function loadWaifu(index) {
   const waifuData = getCharacter(list[index]);
   waifuData.then((result) => {
     if (result) {
+      console.log(
+        `Loading waifu: ${list[index]}, Image: ${result.waifuImg}, Favs: ${result.favs}`,
+      );
       appendListItem(list[index], result.waifuImg, result.favs, false);
     } else {
       console.error(`Failed to load waifu: ${list[index]}`);

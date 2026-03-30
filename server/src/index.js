@@ -3,7 +3,8 @@ const pg = require("pg");
 const bcrypt = require("bcrypt");
 
 const config = require("./config.json");
-const { getRandomFemaleCharacter } = require("./anilistAPI.js");
+const { getRandomFemaleCharacter, getCharacter } = require("./anilistAPI.js");
+const { get } = require("http");
 
 const dbConfig = {
   user: process.env.POSTGRES_USER || config.POSTGRES_USER,
@@ -183,7 +184,21 @@ wss.on("connection", (ws) => {
 
           const userId = sessionRes.rows[0].user_id;
 
-          const waifuData = await getRandomFemaleCharacter();
+          let newWaifu = false;
+          do {
+            const waifuData = await getRandomFemaleCharacter();
+            if (waifuData) {
+              const waifuName =
+                typeof waifuData === "string" ? waifuData : waifuData.name;
+              const checkRes = await pool.query(
+                "SELECT 1 FROM users WHERE id = $1 AND waifus @> to_jsonb($2::text)",
+                [userId, waifuName],
+              );
+              if (checkRes.rows.length === 0) {
+                newWaifu = true;
+              }
+            }
+          } while (!newWaifu);
 
           if (!waifuData) {
             ws.send(
@@ -235,6 +250,22 @@ wss.on("connection", (ws) => {
           );
         }
         break;
+      case "getCharacter":
+        try {
+          const character = await getCharacter(data.name);
+          console.log(character);
+          ws.send(JSON.stringify({ success: true, character }));
+        } catch (err) {
+          console.error("getCharacter error:", err.message);
+          ws.send(
+            JSON.stringify({ success: false, message: "Character not found" }),
+          );
+        }
+        break;
+      default:
+        ws.send(
+          JSON.stringify({ success: false, message: "Unknown message type" }),
+        );
     }
   });
 
@@ -250,5 +281,79 @@ wss.on("error", (error) => {
 function generateToken() {
   return require("crypto").randomBytes(64).toString("hex");
 }
+
+async function addSpecificWaifuToUser(sessionId, waifuName) {
+  try {
+    const sessionRes = await pool.query(
+      "SELECT user_id FROM sessions WHERE id = $1",
+      [sessionId],
+    );
+
+    if (sessionRes.rows.length === 0) {
+      return { success: false, message: "Session not found" };
+    }
+
+    const userId = sessionRes.rows[0].user_id;
+
+    const waifuData = await getCharacter(waifuName);
+    if (!waifuData) {
+      return { success: false, message: "Failed to get waifu data" };
+    }
+
+    const waifuFavourites =
+      typeof waifuData === "object" && waifuData !== null
+        ? Number(waifuData.favourites) || 0
+        : 0;
+
+    const waifuRes = await pool.query(
+      "UPDATE users SET waifus = COALESCE(waifus, '[]'::jsonb) || to_jsonb($1::text) WHERE id = $2 RETURNING waifus",
+      [waifuName, userId],
+    );
+    const scoreRes = await pool.query(
+      "UPDATE users SET score = COALESCE(score, 0) + $1 WHERE id = $2 RETURNING score",
+      [waifuFavourites, userId],
+    );
+
+    if (waifuRes.rows.length === 0 || scoreRes.rows.length === 0) {
+      return { success: false, message: "User not found" };
+    }
+
+    return { success: true, waifu: waifuName, favourites: waifuFavourites };
+  } catch (err) {
+    console.error("addSpecificWaifuToUser error:", err.message);
+    return { success: false, message: "Database error" };
+  }
+}
+
+async function removeWaifuFromUser(sessionId, waifuName) {
+  try {
+    const sessionRes = await pool.query(
+      "SELECT user_id FROM sessions WHERE id = $1",
+      [sessionId],
+    );
+
+    if (sessionRes.rows.length === 0) {
+      return { success: false, message: "Session not found" };
+    }
+
+    const userId = sessionRes.rows[0].user_id;
+
+    const waifuRes = await pool.query(
+      "UPDATE users SET waifus = waifus - $1 WHERE id = $2 RETURNING waifus",
+      [waifuName, userId],
+    );
+
+    if (waifuRes.rows.length === 0) {
+      return { success: false, message: "User not found" };
+    }
+
+    return { success: true, waifu: waifuName };
+  } catch (err) {
+    console.error("removeWaifuFromUser error:", err.message);
+    return { success: false, message: "Database error" };
+  }
+}
+
+module.exports = { addSpecificWaifuToUser, removeWaifuFromUser };
 
 console.log("WebSocket server is running on ws://localhost:3000");

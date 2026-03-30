@@ -22,6 +22,16 @@ docker compose up --build
 
 API is free for everyone but rate limited, so watch out.
 
+## Commands
+
+```bash
+    # Add a waifu
+    docker exec -it animegamba-server-1 node -e "require('/usr/src/app/src/index.js').addSpecificWaifuToUser(10,'waifu')"
+
+    # Remove a waifu
+    docker exec -it animegamba-server-1 node -e "require('/usr/src/app/src/index.js').removeWaifuFromUser(10,'waifu')"
+```
+
 ## License
 
 GNU General Public License v3.0 - feel free to use this project as you wish.
