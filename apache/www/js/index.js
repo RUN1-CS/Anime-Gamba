@@ -42,6 +42,6 @@ addEventListener("DOMContentLoaded", () => {
   };
   document.getElementById("logout").addEventListener("click", () => {
     sessionStorage.removeItem("sessionId");
-    location.href = "login.php";
+    location.href = "auth.php";
   });
 });

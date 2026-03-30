@@ -1,3 +1,10 @@
+<?php
+/* Spin The Wheel game page
+TODO:
+- Add the wheel
+- Loading pages for more anime waifus per API call (currently one by one)
+*/
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

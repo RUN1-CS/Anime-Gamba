@@ -1,3 +1,9 @@
+<?php
+/* Waifu List
+TODO:
+- Add proper full list (currently just carousel and list of names)
+*/
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,7 +18,7 @@
     <nav class="navbar navbar-dark bg-dark mb-4">
         <div class="container-fluid bg-dark text-white">
             <span class="navbar-brand mb-0 h1">AnimeGamba</span>
-            <a class="btn btn-outline-light" href="/">← Back to Home</a>
+            <a class="btn btn-outline-light" href="/"><i class="nf nf-md-keyboard_backspace"></i> Back to Home</a>
         </div>
     </nav>
     <main class="container bg-dark py-5 text-white">
