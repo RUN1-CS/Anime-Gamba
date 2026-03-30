@@ -185,8 +185,10 @@ wss.on("connection", (ws) => {
           const userId = sessionRes.rows[0].user_id;
 
           let newWaifu = false;
+          let waifuData = null;
           do {
-            const waifuData = await getRandomFemaleCharacter();
+            waifuData = await getRandomFemaleCharacter();
+            console.log("Generated waifu:", waifuData);
             if (waifuData) {
               const waifuName =
                 typeof waifuData === "string" ? waifuData : waifuData.name;
