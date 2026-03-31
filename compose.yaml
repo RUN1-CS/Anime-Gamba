@@ -5,6 +5,9 @@ services:
       - "80:80"
     volumes:
       - ./apache/www:/var/www/html
+      - ./.env:/var/www/html/admin/.env:ro
+    env_file:
+      - .env
     depends_on:
       - server
     networks:

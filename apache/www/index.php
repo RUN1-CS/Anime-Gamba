@@ -32,7 +32,12 @@
                     </div>
                 </div>
                 <div class="col-md-4 text-end">
-                    <button class="btn btn-secondary btn-sm" id="logout"><i class="nf nf-cod-sign_out"></i> Log Out</button>
+                    <script>
+                        if(sessionStorage.getItem("sessionId")){
+                            document.write('<button class="btn btn-secondary btn-sm" id="logout"><i class="nf nf-cod-sign_out"></i> Log Out</button>');
+                            document.write('<a href="/account/settings.php" class="btn btn-secondary btn-sm"><i class="nf nf-fa-user"> Account</i></a>');
+                        }
+                    </script>
                 </div>
             </div>
         </div>
@@ -45,7 +50,8 @@
                 if(!sessionStorage.getItem("sessionId")){
                     document.write('<a href="auth.php" class="btn btn-success btn-lg"><i class="nf nf-cod-sign_in"></i> Login or Sign Up</a>');
                 }else{
-                    document.write('<a href="list.php" class="btn btn-primary btn-lg"><i class="nf nf-cod-sign_in"></i> See your list</a>');
+                    document.write('<a href="account/list.php" class="btn btn-primary btn-lg"><i class="nf nf-cod-sign_in"></i> See your list</a>');
+                    document.write('<a href="account/friends.php" class="btn btn-secondary btn-lg ms-3"><i class="nf nf-fa-users"></i> See your friends</a>');
                 }
             </script>
         </div>

@@ -1,26 +1,4 @@
-function rarity(rating) {
-  const maxRating = 35000;
-  const percentage = (rating / maxRating) * 100;
-
-  if (percentage >= 90) return "Mythic";
-  else if (percentage >= 60) return "Legendary";
-  else if (percentage >= 40) return "Epic";
-  else if (percentage >= 35) return "Rare";
-  else if (percentage >= 20) return "Uncommon";
-  else return "Common";
-}
-
-function getColorByRarity(rarity) {
-  const colors = {
-    Mythic: "#ff006adc",
-    Legendary: "#fdf000",
-    Epic: "#CD7F32",
-    Rare: "#1E90FF",
-    Uncommon: "#32CD32",
-    Common: "#808080",
-  };
-  return colors[rarity] || "#000000";
-}
+import { rarity, getColorByRarity } from "./module.js";
 
 async function getCharacter(fullName) {
   WebSocket.send(JSON.stringify({ type: "getCharacter", name: fullName }));
@@ -54,7 +32,7 @@ function appendListItem(waifu, img, favs, active = false) {
   listItem.appendChild(imgElement);
   const caption = document.createElement("span");
   caption.className = "carousel-caption d-none d-md-block";
-  caption.textContent = waifu + " - " + rarity(favs);
+  caption.textContent = `${waifu} - ${rarity(favs)} (${favs} favs)`;
   caption.style.backgroundColor = getColorByRarity(rarity(favs));
   listItem.appendChild(caption);
   listElement.appendChild(listItem);

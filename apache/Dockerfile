@@ -21,5 +21,8 @@ RUN a2ensite 000-default.conf
 # Expose port 80
 EXPOSE 80
 
+# Install PHP extensions
+RUN docker-php-ext-install pdo pdo_pgsql
+
 # Start Apache in foreground
 CMD ["apache2-foreground"]

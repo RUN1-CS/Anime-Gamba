@@ -1,3 +1,5 @@
+import { rarity, getColorByRarity } from "./module.js";
+
 addEventListener("DOMContentLoaded", () => {
   WebSocket = new WebSocket("ws://localhost:3000");
 
@@ -22,7 +24,8 @@ addEventListener("DOMContentLoaded", () => {
     const msg = document.getElementById("gacha-message");
     if (data.waifu) {
       if (data.success) {
-        msg.textContent = `You got ${data.waifu}!`;
+        msg.textContent = `You got ${data.waifu} - ${data.favourites}!`;
+        msg.style.color = getColorByRarity(rarity(data.favourites));
         getCharacterByName(data.waifu).then((data) => {
           if (data) {
             document.getElementById("waifu-image").src = data.image.large;

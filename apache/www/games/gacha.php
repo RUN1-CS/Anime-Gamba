@@ -11,7 +11,7 @@ TODO:
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AnimeGamba - Gacha</title>
-    <script src="/js/gacha.js"></script>
+    <script type="module" src="/js/gacha.js"></script>
     <link rel="stylesheet" href="/styles.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
@@ -30,7 +30,7 @@ TODO:
         </div>
         <div id="gacha-result" class="d-flex flex-column justify-content-center align-items-center">
             <button id="gacha-button" class="btn btn-primary btn-lg mb-3">Open the Card-pack!</button>
-            <span id="gacha-message" class="h5 text-muted">Open the Card-pack!</span>
+            <span id="gacha-message" class="h5">Open the Card-pack!</span>
             <!-- Next Update: Package opening animation -->
             <img src="" alt="Waifu Image" id="waifu-image" class="img-fluid mt-4" style="max-width: 400px;">
         </div>

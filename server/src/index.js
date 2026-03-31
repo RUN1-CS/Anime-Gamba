@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt");
 const config = require("./config.json");
 const { getRandomFemaleCharacter, getCharacter } = require("./anilistAPI.js");
 const { get } = require("http");
+const { type } = require("os");
 
 const dbConfig = {
   user: process.env.POSTGRES_USER || config.POSTGRES_USER,
@@ -264,6 +265,59 @@ wss.on("connection", (ws) => {
           );
         }
         break;
+      case "requestExport":
+        try {
+          if (!data.sessionId) {
+            ws.send(
+              JSON.stringify({ success: false, message: "Missing sessionId" }),
+            );
+            return;
+          }
+
+          const sessionRes = await pool.query(
+            "SELECT user_id FROM sessions WHERE id = $1",
+            [data.sessionId],
+          );
+
+          if (sessionRes.rows.length === 0) {
+            ws.send(
+              JSON.stringify({ success: false, message: "Session not found" }),
+            );
+            return;
+          }
+
+          const userId = sessionRes.rows[0].user_id;
+
+          const userRes = await pool.query(
+            "SELECT username, score, waifus FROM users WHERE id = $1",
+            [userId],
+          );
+          if (userRes.rows.length === 0) {
+            ws.send(
+              JSON.stringify({ success: false, message: "User not found" }),
+            );
+            return;
+          }
+
+          const userData = userRes.rows[0];
+          ws.send(
+            JSON.stringify({
+              success: true,
+              type: "export",
+              data: {
+                username: userData.username,
+                score: userData.score,
+                waifus: userData.waifus,
+              },
+            }),
+          );
+        } catch (err) {
+          console.error("requestExport error:", err.message);
+          ws.send(
+            JSON.stringify({ success: false, message: "Database error" }),
+          );
+        }
+        break;
       default:
         ws.send(
           JSON.stringify({ success: false, message: "Unknown message type" }),
@@ -284,28 +338,18 @@ function generateToken() {
   return require("crypto").randomBytes(64).toString("hex");
 }
 
-async function addSpecificWaifuToUser(sessionId, waifuName) {
+console.log("test");
+const testWaifu = getCharacter("Zero Two");
+console.log(testWaifu);
+
+async function addSpecificWaifuToUser(userId, waifuName) {
   try {
-    const sessionRes = await pool.query(
-      "SELECT user_id FROM sessions WHERE id = $1",
-      [sessionId],
-    );
-
-    if (sessionRes.rows.length === 0) {
-      return { success: false, message: "Session not found" };
-    }
-
-    const userId = sessionRes.rows[0].user_id;
-
-    const waifuData = await getCharacter(waifuName);
+    const rawWaifuData = await getCharacter(waifuName);
+    const waifuData = JSON.parse(rawWaifuData);
     if (!waifuData) {
+      console.error("Failed to get waifu data for:", waifuName);
       return { success: false, message: "Failed to get waifu data" };
     }
-
-    const waifuFavourites =
-      typeof waifuData === "object" && waifuData !== null
-        ? Number(waifuData.favourites) || 0
-        : 0;
 
     const waifuRes = await pool.query(
       "UPDATE users SET waifus = COALESCE(waifus, '[]'::jsonb) || to_jsonb($1::text) WHERE id = $2 RETURNING waifus",
@@ -313,49 +357,65 @@ async function addSpecificWaifuToUser(sessionId, waifuName) {
     );
     const scoreRes = await pool.query(
       "UPDATE users SET score = COALESCE(score, 0) + $1 WHERE id = $2 RETURNING score",
-      [waifuFavourites, userId],
+      [waifuData.favs || 0, userId],
     );
 
     if (waifuRes.rows.length === 0 || scoreRes.rows.length === 0) {
+      console.error("User not found for ID:", userId);
       return { success: false, message: "User not found" };
     }
 
-    return { success: true, waifu: waifuName, favourites: waifuFavourites };
+    return {
+      success: true,
+      waifu: waifuName,
+      favourites: waifuData.favs || 0,
+    };
   } catch (err) {
     console.error("addSpecificWaifuToUser error:", err.message);
     return { success: false, message: "Database error" };
   }
 }
 
-async function removeWaifuFromUser(sessionId, waifuName) {
+async function removeWaifuFromUser(userId, waifuName) {
   try {
-    const sessionRes = await pool.query(
-      "SELECT user_id FROM sessions WHERE id = $1",
-      [sessionId],
-    );
-
-    if (sessionRes.rows.length === 0) {
-      return { success: false, message: "Session not found" };
-    }
-
-    const userId = sessionRes.rows[0].user_id;
-
     const waifuRes = await pool.query(
       "UPDATE users SET waifus = waifus - $1 WHERE id = $2 RETURNING waifus",
       [waifuName, userId],
     );
 
     if (waifuRes.rows.length === 0) {
+      console.error("User not found for ID:", userId);
       return { success: false, message: "User not found" };
     }
 
     return { success: true, waifu: waifuName };
   } catch (err) {
     console.error("removeWaifuFromUser error:", err.message);
+    console.error("Full error:", err);
     return { success: false, message: "Database error" };
   }
 }
 
-module.exports = { addSpecificWaifuToUser, removeWaifuFromUser };
+async function wipeUserData(userId) {
+  try {
+    const res = await pool.query(
+      "UPDATE users SET waifus = '[]'::jsonb, score = 0 WHERE id = $1 RETURNING waifus, score",
+      [userId],
+    );
+
+    if (res.rows.length === 0) {
+      console.error("User not found for ID:", userId);
+      return { success: false, message: "User not found" };
+    }
+
+    return { success: true };
+  } catch (err) {
+    console.error("wipeUserData error:", err.message);
+    console.error("Full error:", err);
+    return { success: false, message: "Database error" };
+  }
+}
+
+module.exports = { addSpecificWaifuToUser, removeWaifuFromUser, wipeUserData };
 
 console.log("WebSocket server is running on ws://localhost:3000");
