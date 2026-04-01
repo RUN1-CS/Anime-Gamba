@@ -1,0 +1,7 @@
+{
+  "POSTGRES_USER": "animegamba",
+  "POSTGRES_PASSWORD": "animegamba",
+  "POSTGRES_DB": "animegamba",
+  "POSTGRES_HOST": "db",
+  "POSTGRES_PORT": 5432
+}

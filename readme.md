@@ -14,6 +14,7 @@ A stylish anime-themed gambling simulation project.
 git clone https://github.com/mysterio/AnimeGamba.git
 cd AnimeGamba
 cp .env.example .env
+cp ./server/src/config.json.example ./server/src/config.json
 # Don't forget to change the info inside
 docker compose up --build
 ```
