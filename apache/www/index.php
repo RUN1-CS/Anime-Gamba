@@ -56,6 +56,7 @@ if(!isset($_COOKIE['session'])){
                 }else{
                     document.write('<a href="account/list.php" class="btn btn-primary btn-lg"><i class="nf nf-cod-sign_in"></i> See your list</a>');
                     document.write('<a href="account/friends.php" class="btn btn-secondary btn-lg ms-3"><i class="nf nf-fa-users"></i> See your friends</a>');
+                    document.write('<a href="account/leaderboard.php" class="btn btn-secondary btn-lg ms-3"><i class="nf nf-fa-trophy"></i> See the leaderboard</a>');
                 }
             </script>
         </div>

@@ -151,3 +151,13 @@ header {
   justify-content: space-between;
   flex-direction: row;
 }
+
+.text-gold {
+  color: gold !important;
+}
+.text-silver {
+  color: silver !important;
+}
+.text-bronze {
+  color: rgb(205, 127, 50) !important;
+}

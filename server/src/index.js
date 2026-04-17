@@ -1,7 +1,7 @@
 const WebSocket = require("ws");
 
 const { filterTokens, login, register } = require("./auth");
-const { getData, addWaifu } = require("./data/data");
+const { getData, addWaifu, getTop } = require("./data/data");
 const { exportData, importData } = require("./data/utils");
 const { updateUserPassword, updateUserSettings } = require("./data/updates");
 const { getUsernameBySession } = require("./db");
@@ -58,6 +58,10 @@ wss.on("connection", (ws) => {
           data.newUsername,
           data.newEmail,
         );
+        break;
+      case "getTop":
+        const top = await getTop();
+        ws.send(JSON.stringify({ success: true, top }));
         break;
       default:
         ws.send(

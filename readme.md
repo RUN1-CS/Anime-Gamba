@@ -37,7 +37,6 @@ API is free for everyone but rate limited, so watch out.
 
 - **DONE** Basic gambling mechanics
 - Multiple waifus fetching (randomized in single API call)
-- Spin The Wheel game mode
 - Additional game variations
 - Leaderboard system
 - Rate limiting for packages

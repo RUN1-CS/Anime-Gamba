@@ -33,14 +33,6 @@ async function verifySession(token, userId) {
       if (match) {
         console.log(`Session verified for user ID: ${userId}`);
         return true;
-      } else {
-        const invalid = await pool.query(
-          "DELETE FROM sessions WHERE user_id = $1 AND token = $2",
-          [userId, row.token],
-        );
-        console.log(
-          `Deleted invalid session for user ID: ${userId}, token: ${row.token}`,
-        );
       }
     }
     console.log(`No valid session found for user ID: ${userId}`);
@@ -64,9 +56,11 @@ async function login(ws, data) {
     const match = await bcrypt.compare(data.Passwd, user.password);
     if (match) {
       const token = generateToken();
+      const hashed = await hash(token);
+
       const sesRes = await pool.query(
         "INSERT INTO sessions (user_id, token) VALUES ($1, $2) RETURNING id",
-        [user.id, hash(token)],
+        [user.id, hashed],
       );
       ws.send(
         JSON.stringify({ success: true, session: token, userId: user.id }),
@@ -92,9 +86,11 @@ async function register(ws, data) {
     );
     const userId = userRes.rows[0].id;
     const token = generateToken();
+    const hashed = await hash(token);
+
     const sesRes = await pool.query(
       "INSERT INTO sessions (user_id, token) VALUES ($1, $2) RETURNING id",
-      [userId, hash(token)],
+      [userId, hashed],
     );
     if (sesRes.rows.length === 0) {
       console.error("Failed to create session for new user");

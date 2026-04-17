@@ -143,4 +143,16 @@ async function addWaifu(ws, data) {
   }
 }
 
-module.exports = { getData, addWaifu };
+async function getTop() {
+  try {
+    const res = await pool.query(
+      "SELECT username, score FROM users ORDER BY score DESC NULLS LAST LIMIT 10",
+    );
+    return res.rows;
+  } catch (err) {
+    console.error("GetTop error:", err.message);
+    return [];
+  }
+}
+
+module.exports = { getData, addWaifu, getTop };
