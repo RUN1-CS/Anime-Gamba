@@ -9,12 +9,11 @@ async function exportData(ws, data) {
       return;
     }
 
-    verifySession(data.session, data.userId).then((res) => {
-      if (!res) {
-        ws.send(JSON.stringify({ success: false, message: "Invalid session" }));
-        return;
-      }
-    });
+    const sessionValid = await verifySession(data.session, data.userId);
+    if (!sessionValid) {
+      ws.send(JSON.stringify({ success: false, message: "Invalid session" }));
+      return;
+    }
 
     const userId = data.userId;
 
@@ -54,12 +53,11 @@ async function importData(ws, data) {
       return;
     }
 
-    verifySession(data.session, data.userId).then((res) => {
-      if (!res) {
-        ws.send(JSON.stringify({ success: false, message: "Invalid session" }));
-        return;
-      }
-    });
+    const sessionValid = await verifySession(data.session, data.userId);
+    if (!sessionValid) {
+      ws.send(JSON.stringify({ success: false, message: "Invalid session" }));
+      return;
+    }
 
     const userId = data.userId;
 

@@ -1,6 +1,6 @@
 const { pool } = require("../db");
 const { getRandomFemaleCharacter } = require("../anilistAPI.js");
-const { hash, verifySession } = require("../auth.js");
+const { verifySession } = require("../auth.js");
 
 async function getData(ws, data) {
   try {
@@ -14,12 +14,11 @@ async function getData(ws, data) {
       return;
     }
 
-    verifySession(data.session, data.userId).then((res) => {
-      if (!res) {
-        ws.send(JSON.stringify({ success: false, message: "Invalid session" }));
-        return;
-      }
-    });
+    const sessionValid = await verifySession(data.session, data.userId);
+    if (!sessionValid) {
+      ws.send(JSON.stringify({ success: false, message: "Invalid session" }));
+      return;
+    }
 
     const res = await pool.query(
       `SELECT u.username,
@@ -70,12 +69,11 @@ async function addWaifu(ws, data) {
       return;
     }
 
-    verifySession(data.session, data.userId).then((res) => {
-      if (!res) {
-        ws.send(JSON.stringify({ success: false, message: "Invalid session" }));
-        return;
-      }
-    });
+    const sessionValid = await verifySession(data.session, data.userId);
+    if (!sessionValid) {
+      ws.send(JSON.stringify({ success: false, message: "Invalid session" }));
+      return;
+    }
 
     const userId = data.userId;
 
@@ -83,7 +81,6 @@ async function addWaifu(ws, data) {
     let waifuData = null;
     do {
       waifuData = await getRandomFemaleCharacter();
-      console.log("Generated waifu:", waifuData);
       if (waifuData) {
         const waifuName =
           typeof waifuData === "string" ? waifuData : waifuData.name;

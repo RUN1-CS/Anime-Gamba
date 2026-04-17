@@ -76,7 +76,7 @@ if(!isset($_COOKIE['session'])){
                 <div class="col-md-6">
                     <div class="card h-100 shadow-lg bg-dark text-white border-0 hover-lift">
                         <div class="card-body d-flex justify-content-between align-items-center">
-                            <h5 class="card-title mb-0 fw-bold"><i class="nf nf-fa-spinner"></i> Spin The Wheel</h5>
+                            <h5 class="card-title mb-0 fw-bold"><i class="nf nf-weather-stars"></i> Coming Soon!</h5>
                             <a href="games/spin.php" class="btn btn-secondary btn-sm"><i class="nf nf-fa-play"></i> Play</a>
                         </div>
                     </div>
