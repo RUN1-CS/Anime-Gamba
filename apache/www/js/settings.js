@@ -1,6 +1,3 @@
-// For now you can only export your data, sowy
-// !NOTICE! - Exports will be later encrypted to prevent cheating. Thanks for understanding <3
-
 addEventListener("DOMContentLoaded", () => {
   const sessionId = sessionStorage.getItem("sessionId");
 
@@ -37,5 +34,64 @@ addEventListener("DOMContentLoaded", () => {
   exportButton.addEventListener("click", () => {
     WebSocket.send(JSON.stringify({ type: "requestExport", sessionId }));
   });
+  const importButton = document.getElementById("import");
+  importButton.addEventListener("click", () => {
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = "application/json";
+    fileInput.onchange = (event) => {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const importedData = JSON.parse(e.target.result);
+          WebSocket.send(
+            JSON.stringify({
+              type: "importData",
+              sessionId,
+              data: importedData,
+            }),
+          );
+        } catch (err) {
+          alert("Invalid file format. Please select a valid JSON file.");
+        }
+      };
+      reader.readAsText(file);
+    };
+    fileInput.click();
+  });
+
+  const updateForm = document.getElementById("update-settings");
+  updateForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const data = new FormData(updateForm);
+    const username = data.get("username");
+    const email = data.get("email");
+    WebSocket.send(
+      JSON.stringify({
+        type: "updateSettings",
+        sessionId,
+        data: { username, email },
+      }),
+    );
+  });
+
+  const passwordChangeButton = document.getElementById("change-password");
+  passwordChangeButton.addEventListener("click", () => {
+    new bootstrap.Modal(document.getElementById("passwordChangeModal")).show();
+  });
+  const passwordChangeForm = document.getElementById("password-change-form");
+  passwordChangeForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const data = new FormData(passwordChangeForm);
+    const currentPassword = data.get("current-password");
+    const newPassword = data.get("new-password");
+    WebSocket.send(
+      JSON.stringify({
+        type: "changePassword",
+        sessionId,
+        data: { currentPassword, newPassword },
+      }),
+    );
+  });
 });
-// Importing will be added later, I need to change the db first, so I can import the data without issues.

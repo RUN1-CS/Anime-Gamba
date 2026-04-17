@@ -56,23 +56,24 @@
                 <div class="tab-pane fade show active" id="settings" role="tabpanel">
                     <div class="card">
                         <div class="card-body" id="settings-content">
-                            <form>
+                            <form id="update-settings">
                                 <div class="mb-3">
                                     <label for="username" class="form-label">Username</label>
-                                    <input type="text" class="form-control" id="username" name="username" value="yuki">
+                                    <input type="text" class="form-control" id="username" name="username" placeholder="yuki">
                                 </div>
                                 <div class="mb-3">
                                     <label for="email" class="form-label">Email</label>
-                                    <input type="email" class="form-control" id="email" name="email" value="yuki@suou.com">
+                                    <input type="email" class="form-control" id="email" name="email" placeholder="yuki@suou.com">
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Password</label>
-                                    <button class="btn btn-primary" id="reset-password" type="button">Reset Password</button>
+                                    <button class="btn btn-primary" id="change-password" type="button">Change Password</button>
                                 </div>
                                 <button class="btn btn-success" type="submit">Save Changes</button>
                             </form>
                             <div class="m-3"></div>
                             <button class="btn btn-danger" type="button" id="export">Export Data</button>
+                            <button class="btn btn-secondary" type="button" id="import">Import Data</button>
                         </div>
                     </div>
                 </div>
@@ -98,6 +99,34 @@
                         <div class="card-body">
                             <p>Favorites to be implemented</p>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="passwordChangeModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Change Password</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="password-change-form">
+                            <div class="mb-3">
+                                <label for="current-password" class="form-label">Current Password</label>
+                                <input type="password" class="form-control" id="current-password" name="current-password" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="new-password" class="form-label">New Password</label>
+                                <input type="password" class="form-control" id="new-password" name="new-password" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="confirm-password" class="form-label">Confirm New Password</label>
+                                <input type="password" class="form-control" id="confirm-password" name="confirm-password" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Update Password</button>
+                        </form>
                     </div>
                 </div>
             </div>
