@@ -1,6 +1,8 @@
 <?php
-define('ADMINACCESS', true);
-include 'admin-tools.php';
+include_once 'admin-tools.php';
+if(!defined('ADMINACCESS')) {
+    die('Unauthorized access');
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">

@@ -14,9 +14,12 @@ addEventListener("DOMContentLoaded", () => {
 
   WebSocket = new WebSocket("ws://localhost:3000");
 
-  WebSocket.onopen = () => {
-    const sessionId = sessionStorage.getItem("sessionId");
-    WebSocket.send(JSON.stringify({ type: "getData", sessionId }));
+  WebSocket.onopen = async () => {
+    const session = (await cookieStore.get("session")).value;
+    const userId = (await cookieStore.get("userId")).value;
+    WebSocket.send(
+      JSON.stringify({ type: "getData", session: session, userId: userId }),
+    );
   };
 
   WebSocket.onmessage = (event) => {
@@ -41,7 +44,7 @@ addEventListener("DOMContentLoaded", () => {
     }, 3000);
   };
   document.getElementById("logout").addEventListener("click", () => {
-    sessionStorage.removeItem("sessionId");
+    cookieStore.delete("session");
     location.href = "auth.php";
   });
 });

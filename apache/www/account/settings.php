@@ -7,7 +7,11 @@
 - Add QR Code generation for user profiles to easily share with friends
 - Add account deletion option with confirmation step
 - Encrypt exported data to prevent cheating when exporting user data (currently just a JSON dump)
-*/  
+*/
+if(!isset($_COOKIE['session'])){
+    header("Location: /auth.php");
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">

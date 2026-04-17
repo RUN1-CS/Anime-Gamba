@@ -1,5 +1,6 @@
 const pg = require("pg");
 const config = require("./config.json");
+const { hash } = require("./auth");
 
 const dbConfig = {
   user: config.POSTGRES_USER,
@@ -23,11 +24,12 @@ pool.on("error", (err) => {
   console.error("Database pool error:", err);
 });
 
-async function getUsrnameBySessionId(sessionId) {
+async function getUsernameBySession(session) {
   try {
+    const sesHash = await hash(session);
     const res = await pool.query(
-      "SELECT users.username FROM sessions JOIN users ON sessions.user_id = users.id WHERE sessions.id = $1",
-      [sessionId],
+      "SELECT users.username FROM sessions JOIN users ON sessions.user_id = users.id WHERE sessions.token = $1",
+      [sesHash],
     );
     if (res.rows.length === 0) {
       return null;
@@ -39,4 +41,4 @@ async function getUsrnameBySessionId(sessionId) {
   }
 }
 
-module.exports = { pool, getUsrnameBySessionId };
+module.exports = { pool, getUsernameBySession };

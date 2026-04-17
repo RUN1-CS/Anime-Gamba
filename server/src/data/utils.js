@@ -1,24 +1,22 @@
 const { pool } = require("../db");
 const { encrypt, decrypt } = require("../encryption");
+const { verifySession } = require("../auth");
 
 async function exportData(ws, data) {
   try {
-    if (!data.sessionId) {
-      ws.send(JSON.stringify({ success: false, message: "Missing sessionId" }));
+    if (!data.session) {
+      ws.send(JSON.stringify({ success: false, message: "Missing session" }));
       return;
     }
 
-    const sessionRes = await pool.query(
-      "SELECT user_id FROM sessions WHERE id = $1",
-      [data.sessionId],
-    );
+    verifySession(data.session, data.userId).then((res) => {
+      if (!res) {
+        ws.send(JSON.stringify({ success: false, message: "Invalid session" }));
+        return;
+      }
+    });
 
-    if (sessionRes.rows.length === 0) {
-      ws.send(JSON.stringify({ success: false, message: "Session not found" }));
-      return;
-    }
-
-    const userId = sessionRes.rows[0].user_id;
+    const userId = data.userId;
 
     const userRes = await pool.query(
       "SELECT username, score, waifus FROM users WHERE id = $1",
@@ -51,22 +49,19 @@ async function exportData(ws, data) {
 
 async function importData(ws, data) {
   try {
-    if (!data.sessionId) {
-      ws.send(JSON.stringify({ success: false, message: "Missing sessionId" }));
+    if (!data.session) {
+      ws.send(JSON.stringify({ success: false, message: "Missing session" }));
       return;
     }
 
-    const sessionRes = await pool.query(
-      "SELECT user_id FROM sessions WHERE id = $1",
-      [data.sessionId],
-    );
+    verifySession(data.session, data.userId).then((res) => {
+      if (!res) {
+        ws.send(JSON.stringify({ success: false, message: "Invalid session" }));
+        return;
+      }
+    });
 
-    if (sessionRes.rows.length === 0) {
-      ws.send(JSON.stringify({ success: false, message: "Session not found" }));
-      return;
-    }
-
-    const userId = sessionRes.rows[0].user_id;
+    const userId = data.userId;
 
     let decryptedData;
     try {

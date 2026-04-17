@@ -7,8 +7,9 @@ WebSocket.onopen = () => {};
 WebSocket.onmessage = (event) => {
   const data = JSON.parse(event.data);
   if (data.success) {
-    if (data.sessionId) {
-      sessionStorage.setItem("sessionId", String(data.sessionId));
+    if (data.session) {
+      cookieStore.set("session", data.session, { path: "/" });
+      cookieStore.set("userId", data.userId, { path: "/" });
     }
     window.location.href = "index.php";
   } else if (data.data) {
@@ -69,8 +70,9 @@ addEventListener("DOMContentLoaded", () => {
   });
   const logoutButton = document.getElementById("logout");
   if (logoutButton) {
-    logoutButton.addEventListener("click", () => {
-      sessionStorage.removeItem("sessionId");
+    logoutButton.addEventListener("click", async () => {
+      await cookieStore.delete("session");
+      await cookieStore.delete("userId");
       window.location.href = "auth.php";
     });
   }

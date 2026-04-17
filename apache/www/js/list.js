@@ -71,9 +71,12 @@ function moveToIndex(index) {
 addEventListener("DOMContentLoaded", () => {
   WebSocket = new WebSocket("ws://localhost:3000");
 
-  WebSocket.onopen = () => {
-    const sessionId = sessionStorage.getItem("sessionId");
-    WebSocket.send(JSON.stringify({ type: "getData", sessionId }));
+  WebSocket.onopen = async () => {
+    const session = (await cookieStore.get("session")).value;
+    const userId = (await cookieStore.get("userId")).value;
+    WebSocket.send(
+      JSON.stringify({ type: "getData", session: session, userId: userId }),
+    );
   };
 
   WebSocket.onclose = () => {

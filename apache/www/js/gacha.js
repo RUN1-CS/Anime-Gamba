@@ -3,16 +3,22 @@ import { rarity, getColorByRarity } from "./module.js";
 addEventListener("DOMContentLoaded", () => {
   WebSocket = new WebSocket("ws://localhost:3000");
 
-  WebSocket.onopen = () => {
-    const sessionId = sessionStorage.getItem("sessionId");
-    WebSocket.send(JSON.stringify({ type: "getData", sessionId }));
+  WebSocket.onopen = async () => {
+    const session = (await cookieStore.get("session")).value;
+    const userId = (await cookieStore.get("userId")).value;
+    WebSocket.send(
+      JSON.stringify({ type: "getData", session: session, userId: userId }),
+    );
   };
 
   const button = document.getElementById("gacha-button");
-  button.addEventListener("click", () => {
+  button.addEventListener("click", async () => {
     button.disabled = true;
-    const sessionId = sessionStorage.getItem("sessionId");
-    WebSocket.send(JSON.stringify({ type: "addWaifu", sessionId }));
+    const session = (await cookieStore.get("session")).value;
+    const userId = (await cookieStore.get("userId")).value;
+    WebSocket.send(
+      JSON.stringify({ type: "addWaifu", session: session, userId: userId }),
+    );
     setTimeout(() => {
       button.disabled = false;
     }, 3000);

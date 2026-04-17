@@ -1,9 +1,16 @@
-addEventListener("DOMContentLoaded", () => {
-  const sessionId = sessionStorage.getItem("sessionId");
+addEventListener("DOMContentLoaded", async () => {
+  const session = (await cookieStore.get("session")).value;
+  const userId = (await cookieStore.get("userId")).value;
+  if (!session) {
+    window.location.href = "auth.php";
+    return;
+  }
 
   WebSocket = new WebSocket("ws://localhost:3000");
-  WebSocket.onopen = () => {
-    WebSocket.send(JSON.stringify({ type: "getData", sessionId }));
+  WebSocket.onopen = async () => {
+    WebSocket.send(
+      JSON.stringify({ type: "getData", session: session, userId: userId }),
+    );
   };
 
   WebSocket.onmessage = (event) => {
@@ -32,7 +39,13 @@ addEventListener("DOMContentLoaded", () => {
   };
   const exportButton = document.getElementById("export");
   exportButton.addEventListener("click", () => {
-    WebSocket.send(JSON.stringify({ type: "requestExport", sessionId }));
+    WebSocket.send(
+      JSON.stringify({
+        type: "requestExport",
+        session: session,
+        userId: userId,
+      }),
+    );
   });
   const importButton = document.getElementById("import");
   importButton.addEventListener("click", () => {
@@ -48,7 +61,8 @@ addEventListener("DOMContentLoaded", () => {
           WebSocket.send(
             JSON.stringify({
               type: "importData",
-              sessionId,
+              session: session,
+              userId: userId,
               data: importedData,
             }),
           );
@@ -70,8 +84,9 @@ addEventListener("DOMContentLoaded", () => {
     WebSocket.send(
       JSON.stringify({
         type: "updateSettings",
-        sessionId,
+        session: session,
         data: { username, email },
+        userId: userId,
       }),
     );
   });
@@ -81,15 +96,17 @@ addEventListener("DOMContentLoaded", () => {
     new bootstrap.Modal(document.getElementById("passwordChangeModal")).show();
   });
   const passwordChangeForm = document.getElementById("password-change-form");
-  passwordChangeForm.addEventListener("submit", (event) => {
+  passwordChangeForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const data = new FormData(passwordChangeForm);
     const currentPassword = data.get("current-password");
     const newPassword = data.get("new-password");
+    const userId = (await cookieStore.get("userId")).value;
     WebSocket.send(
       JSON.stringify({
         type: "changePassword",
-        sessionId,
+        session: session,
+        userId: userId,
         data: { currentPassword, newPassword },
       }),
     );

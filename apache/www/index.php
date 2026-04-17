@@ -1,5 +1,9 @@
 <?php
 // Home page for AnimeGamba
+if(!isset($_COOKIE['session'])){
+    header("Location: /auth.php");
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -33,7 +37,7 @@
                 </div>
                 <div class="col-md-4 text-end">
                     <script>
-                        if(sessionStorage.getItem("sessionId")){
+                        if(cookieStore.get("session") && cookieStore.get("userId")){
                             document.write('<button class="btn btn-secondary btn-sm" id="logout"><i class="nf nf-cod-sign_out"></i> Log Out</button>');
                             document.write('<a href="/account/settings.php" class="btn btn-secondary btn-sm"><i class="nf nf-fa-user"> Account</i></a>');
                         }
@@ -47,7 +51,7 @@
             <h1 class="display-4 fw-bold mb-4 text-light">Welcome to Anime Gamba!</h1>
             <p class="lead text-secondary mb-4">Your one-stop destination for all things anime. Explore our vast collection of anime series, movies, and manga. Join our community to share your love for anime and connect with fellow fans.</p>
             <script>
-                if(!sessionStorage.getItem("sessionId")){
+                if(!cookieStore.get("session") || !cookieStore.get("userId")){
                     document.write('<a href="auth.php" class="btn btn-success btn-lg"><i class="nf nf-cod-sign_in"></i> Login or Sign Up</a>');
                 }else{
                     document.write('<a href="account/list.php" class="btn btn-primary btn-lg"><i class="nf nf-cod-sign_in"></i> See your list</a>');

@@ -4,6 +4,10 @@ TODO:
 - Add gacha animation
 - Maybe add more cards per pack (currently 1 card per pack)
 */
+if(!isset($_COOKIE['session'])){
+    header("Location: /auth.php");
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">

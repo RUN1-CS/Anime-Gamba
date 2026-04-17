@@ -1,25 +1,39 @@
 const { pool } = require("../db");
 const { getRandomFemaleCharacter } = require("../anilistAPI.js");
+const { hash, verifySession } = require("../auth.js");
 
 async function getData(ws, data) {
   try {
-    if (!data.sessionId) {
-      ws.send(JSON.stringify({ success: false, message: "Missing sessionId" }));
+    if (!data.session || !data.userId) {
+      ws.send(
+        JSON.stringify({
+          success: false,
+          message: "Missing session or user ID",
+        }),
+      );
       return;
     }
+
+    verifySession(data.session, data.userId).then((res) => {
+      if (!res) {
+        ws.send(JSON.stringify({ success: false, message: "Invalid session" }));
+        return;
+      }
+    });
 
     const res = await pool.query(
       `SELECT u.username,
                     u.score AS value,
                     COALESCE(u.waifus, '[]'::jsonb) AS waifus
-             FROM sessions s
-             JOIN users u ON u.id = s.user_id
-             WHERE s.id = $1`,
-      [data.sessionId],
+             FROM users u
+             WHERE u.id = $1`,
+      [data.userId],
     );
 
     if (res.rows.length === 0) {
-      ws.send(JSON.stringify({ success: false, message: "Session not found" }));
+      ws.send(
+        JSON.stringify({ success: false, message: "Couldn't get user data" }),
+      );
       return;
     }
 
@@ -51,22 +65,19 @@ async function getData(ws, data) {
 
 async function addWaifu(ws, data) {
   try {
-    if (!data.sessionId) {
-      ws.send(JSON.stringify({ success: false, message: "Missing sessionId" }));
+    if (!data.session) {
+      ws.send(JSON.stringify({ success: false, message: "Missing session" }));
       return;
     }
 
-    const sessionRes = await pool.query(
-      "SELECT user_id FROM sessions WHERE id = $1",
-      [data.sessionId],
-    );
+    verifySession(data.session, data.userId).then((res) => {
+      if (!res) {
+        ws.send(JSON.stringify({ success: false, message: "Invalid session" }));
+        return;
+      }
+    });
 
-    if (sessionRes.rows.length === 0) {
-      ws.send(JSON.stringify({ success: false, message: "Session not found" }));
-      return;
-    }
-
-    const userId = sessionRes.rows[0].user_id;
+    const userId = data.userId;
 
     let newWaifu = false;
     let waifuData = null;

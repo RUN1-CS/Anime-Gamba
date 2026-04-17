@@ -3,6 +3,10 @@
 TODO:
 - Add proper full list (currently just carousel and list of names)
 */
+if(!isset($_COOKIE['session'])){
+    header("Location: /auth.php");
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">

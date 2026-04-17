@@ -6,6 +6,10 @@
 - Add pagination for long friends lists
 - Add QR Code generation for user profiles to easily share with friends
 */
+if(!isset($_COOKIE['session'])){
+    header("Location: /auth.php");
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -13,6 +17,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Anime Gamba - Friends</title>
+    <script src="../js/index.js"></script>
     <link rel="stylesheet" href="/styles.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>

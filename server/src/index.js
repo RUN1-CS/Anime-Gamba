@@ -4,7 +4,7 @@ const { filterTokens, login, register } = require("./auth");
 const { getData, addWaifu } = require("./data/data");
 const { exportData, importData } = require("./data/utils");
 const { updateUserPassword, updateUserSettings } = require("./data/updates");
-const { getUsrnameBySessionId } = require("./db");
+const { getUsernameBySession } = require("./db");
 
 const { getCharacter } = require("./anilistAPI.js");
 
@@ -32,7 +32,6 @@ wss.on("connection", (ws) => {
       case "getCharacter":
         try {
           const character = await getCharacter(data.name);
-          console.log(character);
           ws.send(JSON.stringify({ success: true, character }));
         } catch (err) {
           console.error("getCharacter error:", err.message);
@@ -49,13 +48,13 @@ wss.on("connection", (ws) => {
         break;
       case "updatePassword":
         await updateUserPassword(
-          getUsrnameBySessionId(data.sessionId),
+          getUsernameBySession(data.session),
           data.newPassword,
         );
         break;
       case "updateSettings":
         await updateUserSettings(
-          getUsrnameBySessionId(data.sessionId),
+          getUsernameBySession(data.session),
           data.newUsername,
           data.newEmail,
         );
