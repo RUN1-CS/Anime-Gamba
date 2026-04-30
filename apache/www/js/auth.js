@@ -1,4 +1,7 @@
-WebSocket = new WebSocket("ws://localhost:3000");
+import hostConfig from "./host_conf.json" assert { type: "json" };
+WebSocket = new WebSocket(
+  `${hostConfig.protocol}://${hostConfig.host}:${hostConfig.port}`,
+);
 
 let data = null;
 

@@ -1,5 +1,7 @@
 const WebSocket = require("ws");
 
+const config = require("./config.json");
+
 const { filterTokens, login, register } = require("./auth");
 const { getData, addWaifu, getTop } = require("./data/data");
 const { exportData, importData } = require("./data/utils");
@@ -8,7 +10,7 @@ const { getUsernameBySession } = require("./db");
 
 const { getCharacter } = require("./anilistAPI.js");
 
-const wss = new WebSocket.Server({ port: 3000 });
+const wss = new WebSocket.Server({ port: config.websocket.PORT || 3000 });
 
 wss.on("connection", (ws) => {
   console.log("Client connected");
@@ -79,4 +81,6 @@ wss.on("error", (error) => {
   console.error("WebSocket error:", error);
 });
 
-console.log("WebSocket server is running on ws://localhost:3000");
+console.log(
+  `WebSocket server is running on ${config.websocket.protocol}://localhost:${config.websocket.PORT || 3000}`,
+);

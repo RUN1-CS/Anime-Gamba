@@ -1,3 +1,5 @@
+import hostConfig from "./host_conf.json" assert { type: "json" };
+
 const colors = {
   mythic: "#FF4500",
   legendary: "#FFD700",
@@ -12,7 +14,9 @@ addEventListener("DOMContentLoaded", () => {
   const valuePage = document.getElementById("score");
   const waifusPage = document.getElementById("waifus");
 
-  WebSocket = new WebSocket("ws://localhost:3000");
+  WebSocket = new WebSocket(
+    `${hostConfig.protocol}://${hostConfig.host}:${hostConfig.port}`,
+  );
 
   WebSocket.onopen = async () => {
     const session = (await cookieStore.get("session")).value;

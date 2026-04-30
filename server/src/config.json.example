@@ -1,8 +1,14 @@
 {
-  "POSTGRES_USER": "animegamba",
-  "POSTGRES_PASSWORD": "animegamba",
-  "POSTGRES_DB": "animegamba",
-  "POSTGRES_HOST": "db",
-  "POSTGRES_PORT": 5432,
-  "ENCRYPTION_KEY": "5ea2c4c4f107f5b856a7bfb72116b56d7878c57927be1670cbc831a96c28e933"
+  "database": {
+    "POSTGRES_USER": "animegamba",
+    "POSTGRES_PASSWORD": "animegamba",
+    "POSTGRES_DB": "animegamba",
+    "POSTGRES_HOST": "db",
+    "POSTGRES_PORT": 5432,
+    "ENCRYPTION_KEY": "5ea2c4c4f107f5b856a7bfb72116b56d7878c57927be1670cbc831a96c28e933"
+  },
+  "websocket": {
+    "PORT": 3000,
+    "protocol": "ws"
+  }
 }

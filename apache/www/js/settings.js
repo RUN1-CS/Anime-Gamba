@@ -1,3 +1,5 @@
+import hostConfig from "./host_conf.json" assert { type: "json" };
+
 addEventListener("DOMContentLoaded", async () => {
   const session = (await cookieStore.get("session")).value;
   const userId = (await cookieStore.get("userId")).value;
@@ -6,7 +8,9 @@ addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  WebSocket = new WebSocket("ws://localhost:3000");
+  WebSocket = new WebSocket(
+    `${hostConfig.protocol}://${hostConfig.host}:${hostConfig.port}`,
+  );
   WebSocket.onopen = async () => {
     WebSocket.send(
       JSON.stringify({ type: "getData", session: session, userId: userId }),

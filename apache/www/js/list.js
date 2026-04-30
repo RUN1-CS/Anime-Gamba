@@ -1,4 +1,5 @@
 import { rarity, getColorByRarity } from "./module.js";
+import hostConfig from "./host_conf.json" assert { type: "json" };
 
 async function getCharacter(fullName) {
   WebSocket.send(JSON.stringify({ type: "getCharacter", name: fullName }));
@@ -69,7 +70,9 @@ function moveToIndex(index) {
 }
 
 addEventListener("DOMContentLoaded", () => {
-  WebSocket = new WebSocket("ws://localhost:3000");
+  WebSocket = new WebSocket(
+    `${hostConfig.protocol}://${hostConfig.host}:${hostConfig.port}`,
+  );
 
   WebSocket.onopen = async () => {
     const session = (await cookieStore.get("session")).value;

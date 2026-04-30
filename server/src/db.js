@@ -3,11 +3,11 @@ const config = require("./config.json");
 const { hash } = require("./auth");
 
 const dbConfig = {
-  user: config.POSTGRES_USER,
-  host: config.POSTGRES_HOST || "db",
-  database: config.POSTGRES_DB,
-  password: config.POSTGRES_PASSWORD,
-  port: Number(config.POSTGRES_PORT || 5432),
+  user: config.database.POSTGRES_USER,
+  host: config.database.POSTGRES_HOST || "db",
+  database: config.database.POSTGRES_DB,
+  password: config.database.POSTGRES_PASSWORD,
+  port: Number(config.database.POSTGRES_PORT || 5432),
 };
 
 const pool = new pg.Pool(dbConfig);
