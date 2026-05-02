@@ -62,6 +62,10 @@ async function getData(ws, data) {
           return a.name.localeCompare(b.name);
         case "NAME_DESC":
           return b.name.localeCompare(a.name);
+        case "DATE_ASC":
+          return a - b;
+        case "DATE_DESC":
+          return b - a;
         default:
           return 0;
       }
@@ -102,7 +106,7 @@ async function addWaifu(ws, data) {
     let newWaifu = false;
     let waifuData = null;
     do {
-      waifuData = await getRandomFemaleCharacter();
+      waifuData = await getRandomFemaleCharacter(userId);
       if (waifuData) {
         const waifuName =
           typeof waifuData === "string" ? waifuData : waifuData.name;
@@ -133,7 +137,11 @@ async function addWaifu(ws, data) {
         ? Number(waifuData.favourites) || 0
         : 0;
 
-    const waifuObj = { name: waifuName, favs: waifuFavourites };
+    const waifuObj = {
+      name: waifuName,
+      favs: waifuFavourites,
+      unlocked: Date.now(),
+    };
 
     const waifuRes = await pool.query(
       "UPDATE users SET waifus = COALESCE(waifus, '[]'::jsonb) || to_jsonb($1::text) WHERE id = $2 RETURNING waifus",

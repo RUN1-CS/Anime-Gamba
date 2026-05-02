@@ -58,6 +58,8 @@ if(!isset($_COOKIE['session'])){
                         <option value="FAVOURITES_ASC">Sort by Favourites (Ascending)</option>
                         <option value="NAME_ASC">Sort by Name (Ascending)</option>
                         <option value="NAME_DESC">Sort by Name (Descending)</option>
+                        <option value="DATE_ASC">Sort by Date (Ascending)</option>
+                        <option value="DATE_DESC">Sort by Date (Descending)</option>
                     </select>
                 </div>
                 <ul id="waifu-list-simple" class="list-group" style="max-height: 400px; overflow-y: auto;"></ul>

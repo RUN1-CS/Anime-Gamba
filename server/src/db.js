@@ -45,4 +45,27 @@ async function getUsernameBySession(session) {
   }
 }
 
-module.exports = { pool, getUsernameBySession };
+async function duplicateCheck(userId, waifuName) {
+  try {
+    const res = await pool.query("SELECT waifus FROM users WHERE id = $1", [
+      userId,
+    ]);
+    if (res.rows.length === 0) {
+      return false;
+    }
+    const rawWaifus = res.rows[0].waifus;
+    const waifuList = Array.isArray(rawWaifus) ? rawWaifus : [];
+    for (const w of waifuList) {
+      const waifu = typeof w === "string" ? JSON.parse(w)?.name : w?.name;
+      if (waifu === waifuName) {
+        return true;
+      }
+    }
+    return false;
+  } catch (err) {
+    console.error("Error checking for duplicate waifu:", err.message);
+    return false;
+  }
+}
+
+module.exports = { pool, getUsernameBySession, duplicateCheck };

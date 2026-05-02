@@ -1,6 +1,18 @@
+const duplicateCheck = require("./db").duplicateCheck;
+
 const url = "https://graphql.anilist.co";
 
-async function getRandomFemaleCharacter() {
+let = timestamp = Date.now();
+
+async function getRandomFemaleCharacter(userId) {
+  let newStamp = Date.now();
+  if (newStamp - timestamp < 1000) {
+    await new Promise((resolve) =>
+      setTimeout(resolve, 1000 - (newStamp - timestamp)),
+    );
+  }
+  timestamp = Date.now();
+
   // Pick a random page between 1 and 20 to get variety
   const randomPage = Math.floor(Math.random() * 20) + 1;
 
@@ -42,6 +54,9 @@ async function getRandomFemaleCharacter() {
       // Pick a random one from the filtered list
       const randomIndex = Math.floor(Math.random() * females.length);
       const chosenOne = females[randomIndex];
+      if (await duplicateCheck(userId, chosenOne.name.full)) {
+        return getRandomFemaleCharacter(userId); // Recursive retry if duplicate
+      }
       const waifuData = {
         name: chosenOne.name.full,
         favourites: Number(chosenOne.favourites) || 0,
@@ -50,7 +65,7 @@ async function getRandomFemaleCharacter() {
       return waifuData;
     } else {
       console.log("No female characters found on this page, retrying...");
-      return getRandomFemaleCharacter(); // Recursive retry
+      return getRandomFemaleCharacter(userId); // Recursive retry
     }
   } catch (error) {
     console.error("Error fetching from AniList:", error);

@@ -47,6 +47,7 @@ addEventListener("DOMContentLoaded", async () => {
   };
   document.getElementById("logout").addEventListener("click", () => {
     cookieStore.delete("session");
+    cookieStore.delete("userId");
     location.href = "auth.php";
   });
 });

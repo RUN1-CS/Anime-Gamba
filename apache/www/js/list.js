@@ -36,7 +36,7 @@ function appendListItem(waifu, img, favs, active = false) {
   listItem.appendChild(imgElement);
   const caption = document.createElement("span");
   caption.className = "carousel-caption d-none d-md-block";
-  caption.textContent = `${waifu} - ${rarity(favs)} (${favs} favs)`;
+  caption.textContent = `${waifu} - ${rarity(favs)} (${favs} favs) \nUnlocked: ${new Date().toLocaleDateString()}`;
   caption.style.backgroundColor = getColorByRarity(rarity(favs));
   listItem.appendChild(caption);
   listElement.appendChild(listItem);
@@ -80,7 +80,7 @@ function loadList(data) {
     const waifu = JSON.parse(raw);
     const rar = rarity(waifu.favs);
     const li = document.createElement("li");
-    li.textContent = `${waifu.name} - ${rar} (${waifu.favs} favs)`;
+    li.textContent = `${waifu.name} - ${rar} (${waifu.favs} favs) - Unlocked: ${new Date(waifu.unlocked).toLocaleDateString()}`;
     li.classList.add("list-group-item");
     li.style.backgroundColor = getColorByRarity(rar);
     li.id = waifu.name;

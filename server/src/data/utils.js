@@ -119,7 +119,11 @@ async function addSpecificWaifuToUser(userId, waifuName) {
       return { success: false, message: "Failed to get waifu data" };
     }
 
-    const waifuObj = { name: waifuName, favs: waifuData.favs || 0 };
+    const waifuObj = {
+      name: waifuName,
+      favs: waifuData.favs || 0,
+      unlocked: Date.now(),
+    };
 
     const waifuRes = await pool.query(
       "UPDATE users SET waifus = COALESCE(waifus, '[]'::jsonb) || to_jsonb($1::text) WHERE id = $2 RETURNING waifus",
