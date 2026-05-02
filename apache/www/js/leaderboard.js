@@ -1,9 +1,7 @@
-import hostConfig from "./host_conf.json" assert { type: "json" };
+import { createConnection } from "./module.js";
 
 addEventListener("DOMContentLoaded", async () => {
-  WebSocket = new WebSocket(
-    `${hostConfig.protocol}://${hostConfig.host}:${hostConfig.port}`,
-  );
+  WebSocket = await createConnection();
 
   const userId = (await cookieStore.get("userId")).value;
   const session = (await cookieStore.get("session")).value;

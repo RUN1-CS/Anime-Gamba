@@ -51,8 +51,16 @@ if(!isset($_COOKIE['session'])){
         </div>
         <div class="row">
             <div class="col-lg-8 mx-auto">
-                <h3 class="mb-3 border-bottom pb-2">Full list (names only)</h3>
-                <ul id="waifu-name-list" class="list-group" style="max-height: 400px; overflow-y: auto;"></ul>
+                <h3 class="mb-3 border-bottom pb-2">Full list</h3>
+                <div class="row">
+                    <select id="order-by" class="form-select mb-3 col-md-4">
+                        <option value="FAVOURITES_DESC">Sort by Favourites (Descending)</option>
+                        <option value="FAVOURITES_ASC">Sort by Favourites (Ascending)</option>
+                        <option value="NAME_ASC">Sort by Name (Ascending)</option>
+                        <option value="NAME_DESC">Sort by Name (Descending)</option>
+                    </select>
+                </div>
+                <ul id="waifu-list-simple" class="list-group" style="max-height: 400px; overflow-y: auto;"></ul>
             </div>
         </div>
     </main>

@@ -45,6 +45,7 @@ async function getRandomFemaleCharacter() {
       const waifuData = {
         name: chosenOne.name.full,
         favourites: Number(chosenOne.favourites) || 0,
+        unlocked: Date.now(),
       };
       return waifuData;
     } else {

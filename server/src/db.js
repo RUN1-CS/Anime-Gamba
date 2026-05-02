@@ -1,6 +1,10 @@
 const pg = require("pg");
+const bcrypt = require("bcrypt");
 const config = require("./config.json");
-const { hash } = require("./auth");
+
+async function hash(str) {
+  return bcrypt.hash(str, 10);
+}
 
 const dbConfig = {
   user: config.database.POSTGRES_USER,

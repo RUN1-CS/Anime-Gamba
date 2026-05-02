@@ -1,5 +1,4 @@
-import { rarity, getColorByRarity } from "./module.js";
-import hostConfig from "./host_conf.json" assert { type: "json" };
+import { rarity, getColorByRarity, createConnection } from "./module.js";
 
 async function getCharacter(fullName) {
   WebSocket.send(JSON.stringify({ type: "getCharacter", name: fullName }));
@@ -47,15 +46,13 @@ function loadWaifu(index) {
   if (targetItem && targetItem.classList.contains("carousel-item")) {
     return;
   }
-  const waifuData = getCharacter(list[index]);
+  const indexedWaifu = JSON.parse(list[index]);
+  const waifuData = getCharacter(indexedWaifu.name);
   waifuData.then((result) => {
     if (result) {
-      console.log(
-        `Loading waifu: ${list[index]}, Image: ${result.waifuImg}, Favs: ${result.favs}`,
-      );
-      appendListItem(list[index], result.waifuImg, result.favs, false);
+      appendListItem(indexedWaifu.name, result.waifuImg, result.favs, false);
     } else {
-      console.error(`Failed to load waifu: ${list[index]}`);
+      console.error(`Failed to load waifu: ${indexedWaifu.name}`);
     }
   });
 }
@@ -69,16 +66,19 @@ function moveToIndex(index) {
   if (targetItem) targetItem.classList.add("active");
 }
 
-addEventListener("DOMContentLoaded", () => {
-  WebSocket = new WebSocket(
-    `${hostConfig.protocol}://${hostConfig.host}:${hostConfig.port}`,
-  );
+addEventListener("DOMContentLoaded", async () => {
+  WebSocket = await createConnection();
 
   WebSocket.onopen = async () => {
     const session = (await cookieStore.get("session")).value;
     const userId = (await cookieStore.get("userId")).value;
     WebSocket.send(
-      JSON.stringify({ type: "getData", session: session, userId: userId }),
+      JSON.stringify({
+        type: "getData",
+        orderby: "FAVOURITES_DESC",
+        session: session,
+        userId: userId,
+      }),
     );
   };
 
@@ -101,21 +101,30 @@ addEventListener("DOMContentLoaded", () => {
       return;
     }
     list = data.data.waifus;
-    list.forEach((waifu) => {
-      const ul = document.getElementById("waifu-name-list");
+    list.forEach((raw) => {
+      const waifu = JSON.parse(raw);
+      const rar = rarity(waifu.favs);
+      const ul = document.getElementById("waifu-list-simple");
       const li = document.createElement("li");
-      li.textContent = waifu;
-      li.id = waifu;
+      li.textContent = `${waifu.name} - ${rar} (${waifu.favs} favs)`;
+      li.classList.add("list-group-item");
+      li.style.backgroundColor = getColorByRarity(rar);
+      li.id = waifu.name;
       ul.appendChild(li);
-      const listItem = document.getElementById(waifu);
+      const listItem = document.getElementById(waifu.name);
       listItem.addEventListener("click", () => {
-        currentIndex = list.indexOf(waifu);
+        currentIndex = list.indexOf(raw);
         moveToIndex(currentIndex);
       });
     });
-    const waifuData = getCharacter(list[0]);
+    const waifuData = getCharacter(JSON.parse(list[0]).name);
     waifuData.then((result) => {
-      appendListItem(list[0], result.waifuImg, result.favs, true);
+      appendListItem(
+        JSON.parse(list[0]).name,
+        result.waifuImg,
+        result.favs,
+        true,
+      );
     });
   };
 
@@ -150,5 +159,19 @@ addEventListener("DOMContentLoaded", () => {
     setTimeout(() => {
       next.disabled = false;
     }, 3000);
+  });
+
+  const orderBySelect = document.getElementById("order-by");
+  orderBySelect.addEventListener("change", () => {
+    const session = cookieStore.get("session").value;
+    const userId = cookieStore.get("userId").value;
+    WebSocket.send(
+      JSON.stringify({
+        type: "getData",
+        orderby: orderBySelect.value,
+        session: session,
+        userId: userId,
+      }),
+    );
   });
 });

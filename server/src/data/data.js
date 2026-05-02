@@ -37,13 +37,19 @@ async function getData(ws, data) {
     }
 
     const row = res.rows[0];
-    const waifuNames = row.waifus.map((entry) => {
-      if (typeof entry === "string") {
-        return entry;
-      } else if (entry && typeof entry === "object" && entry.name) {
-        return entry.name;
-      } else {
-        return String(entry);
+
+    const orderedWaifus = row.waifus.sort((a, b) => {
+      switch (data.orderby) {
+        case "FAVOURITES_DESC":
+          return b.favs - a.favs;
+        case "FAVOURITES_ASC":
+          return a.favs - b.favs;
+        case "NAME_ASC":
+          return a.name.localeCompare(b.name);
+        case "NAME_DESC":
+          return b.name.localeCompare(a.name);
+        default:
+          return 0;
       }
     });
 
@@ -52,7 +58,7 @@ async function getData(ws, data) {
         success: true,
         data: {
           ...row,
-          waifus: waifuNames,
+          waifus: orderedWaifus || [],
         },
       }),
     );
@@ -111,9 +117,11 @@ async function addWaifu(ws, data) {
         ? Number(waifuData.favourites) || 0
         : 0;
 
+    const waifuObj = { name: waifuName, favs: waifuFavourites };
+
     const waifuRes = await pool.query(
       "UPDATE users SET waifus = COALESCE(waifus, '[]'::jsonb) || to_jsonb($1::text) WHERE id = $2 RETURNING waifus",
-      [waifuName, userId],
+      [waifuObj, userId],
     );
     const scoreRes = await pool.query(
       "UPDATE users SET score = COALESCE(score, 0) + $1 WHERE id = $2 RETURNING score",

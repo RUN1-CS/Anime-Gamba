@@ -1,4 +1,4 @@
-import hostConfig from "./host_conf.json" assert { type: "json" };
+import { createConnection } from "./module.js";
 
 const colors = {
   mythic: "#FF4500",
@@ -9,14 +9,12 @@ const colors = {
   common: "#808080",
 };
 
-addEventListener("DOMContentLoaded", () => {
+addEventListener("DOMContentLoaded", async () => {
   const usernamePage = document.getElementById("username");
   const valuePage = document.getElementById("score");
   const waifusPage = document.getElementById("waifus");
 
-  WebSocket = new WebSocket(
-    `${hostConfig.protocol}://${hostConfig.host}:${hostConfig.port}`,
-  );
+  WebSocket = await createConnection();
 
   WebSocket.onopen = async () => {
     const session = (await cookieStore.get("session")).value;

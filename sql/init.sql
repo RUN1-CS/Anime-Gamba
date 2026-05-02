@@ -17,4 +17,5 @@ CREATE TABLE sessions (
 );
 
 --- CHANGE CREDENTIALS ---
-INSERT INTO users (username, password, admin) VALUES ('Admin', 'Admin', TRUE);
+INSERT INTO users (username, password, admin) VALUES ('Admin', '$2a$12$SPwAWq3vuTWEVN.q3.s1/ufKizhGsI3r1ne50NTkwM2caxbEWPqVW', TRUE);
+--- Default password is "Admin" ---

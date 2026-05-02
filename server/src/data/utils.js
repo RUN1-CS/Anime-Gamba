@@ -1,6 +1,7 @@
 const { pool } = require("../db");
 const { encrypt, decrypt } = require("../encryption");
 const { verifySession } = require("../auth");
+const { getCharacter } = require("../anilistAPI.js");
 
 async function exportData(ws, data) {
   try {
@@ -118,13 +119,15 @@ async function addSpecificWaifuToUser(userId, waifuName) {
       return { success: false, message: "Failed to get waifu data" };
     }
 
+    const waifuObj = { name: waifuName, favs: waifuData.favs || 0 };
+
     const waifuRes = await pool.query(
       "UPDATE users SET waifus = COALESCE(waifus, '[]'::jsonb) || to_jsonb($1::text) WHERE id = $2 RETURNING waifus",
-      [waifuName, userId],
+      [waifuObj, userId],
     );
     const scoreRes = await pool.query(
       "UPDATE users SET score = COALESCE(score, 0) + $1 WHERE id = $2 RETURNING score",
-      [waifuData.favs || 0, userId],
+      [waifuObj.favs, userId],
     );
 
     if (waifuRes.rows.length === 0 || scoreRes.rows.length === 0) {
@@ -145,9 +148,14 @@ async function addSpecificWaifuToUser(userId, waifuName) {
 
 async function removeWaifuFromUser(userId, waifuName) {
   try {
+    const checkRes = await pool.query(
+      "SELECT waifus FROM users WHERE id = $1 AND waifus @> to_jsonb($2::text)",
+      [userId, waifuName],
+    );
+
     const waifuRes = await pool.query(
       "UPDATE users SET waifus = waifus - $1 WHERE id = $2 RETURNING waifus",
-      [waifuName, userId],
+      [checkRes.rows[0].waifus, userId],
     );
 
     if (waifuRes.rows.length === 0) {

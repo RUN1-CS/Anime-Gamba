@@ -21,7 +21,7 @@ if(!isset($_COOKIE['session'])){
     <title>Anime Gamba - Settings</title>
     <link rel="stylesheet" href="/styles.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="/js/settings.js"></script>
+    <script src="/js/settings.js" type="module"></script>
 </head>
 <body>
     <header class="bg-gradient border-bottom border-secondary py-4 mb-5">

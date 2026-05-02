@@ -1,38 +1,37 @@
-import hostConfig from "./host_conf.json" assert { type: "json" };
-WebSocket = new WebSocket(
-  `${hostConfig.protocol}://${hostConfig.host}:${hostConfig.port}`,
-);
+import { createConnection } from "./module.js";
 
-let data = null;
+addEventListener("DOMContentLoaded", async () => {
+  let WebSocket = await createConnection();
 
-WebSocket.onopen = () => {};
+  let data = null;
 
-WebSocket.onmessage = (event) => {
-  const data = JSON.parse(event.data);
-  if (data.success) {
-    if (data.session) {
-      cookieStore.set("session", data.session, { path: "/" });
-      cookieStore.set("userId", data.userId, { path: "/" });
-    }
-    window.location.href = "index.php";
-  } else if (data.data) {
-    data = data.data;
-  } else alert("Login failed: " + data.message);
-};
+  WebSocket.onopen = () => {};
 
-WebSocket.onclose = () => {
-  setTimeout(() => {
-    location.reload();
-  }, 3000);
-};
+  WebSocket.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    if (data.success) {
+      if (data.session) {
+        cookieStore.set("session", data.session, { path: "/" });
+        cookieStore.set("userId", data.userId, { path: "/" });
+      }
+      window.location.href = "index.php";
+    } else if (data.data) {
+      data = data.data;
+    } else alert("Login failed: " + data.message);
+  };
 
-WebSocket.onerror = (error) => {
-  setTimeout(() => {
-    location.reload();
-  }, 3000);
-};
+  WebSocket.onclose = () => {
+    setTimeout(() => {
+      location.reload();
+    }, 3000);
+  };
 
-addEventListener("DOMContentLoaded", () => {
+  WebSocket.onerror = (error) => {
+    setTimeout(() => {
+      location.reload();
+    }, 3000);
+  };
+
   const forms = document.querySelectorAll("form");
 
   forms.forEach((form) => {

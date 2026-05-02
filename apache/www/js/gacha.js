@@ -1,10 +1,7 @@
-import { rarity, getColorByRarity } from "./module.js";
-import hostConfig from "./host_conf.json" assert { type: "json" };
+import { rarity, getColorByRarity, createConnection } from "./module.js";
 
-addEventListener("DOMContentLoaded", () => {
-  WebSocket = new WebSocket(
-    `${hostConfig.protocol}://${hostConfig.host}:${hostConfig.port}`,
-  );
+addEventListener("DOMContentLoaded", async () => {
+  WebSocket = await createConnection();
 
   WebSocket.onopen = async () => {
     const session = (await cookieStore.get("session")).value;

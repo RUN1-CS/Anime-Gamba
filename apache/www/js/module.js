@@ -21,3 +21,9 @@ export function getColorByRarity(rarity) {
   };
   return colors[rarity] || "#000000";
 }
+
+export async function createConnection() {
+  const response = await fetch("/js/host_conf.json");
+  const config = await response.json();
+  return new WebSocket(`${config.protocol}://${config.host}:${config.port}`);
+}
