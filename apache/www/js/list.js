@@ -1,13 +1,20 @@
 import { rarity, getColorByRarity, createConnection } from "./module.js";
 
+let list = [];
+let currentIndex = 0;
+
 async function getCharacter(fullName) {
   WebSocket.send(JSON.stringify({ type: "getCharacter", name: fullName }));
   return new Promise((resolve) => {
     WebSocket.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      if (data.success) {
+      if (data.success && data.character) {
         const waifuData = JSON.parse(data.character);
         resolve({ waifuImg: waifuData.waifuImg, favs: waifuData.favs });
+      } else if (data.success && data.data.waifus) {
+        list = data.data.waifus;
+        loadList();
+        resolve(null);
       } else {
         console.error("Failed to get character data:", data.message);
         resolve({ success: false, message: data.message });
@@ -15,9 +22,6 @@ async function getCharacter(fullName) {
     };
   });
 }
-
-let list = [];
-let currentIndex = 0;
 
 function appendListItem(waifu, img, favs, active = false) {
   const listElement = document.getElementById("waifu-list");
@@ -66,6 +70,38 @@ function moveToIndex(index) {
   if (targetItem) targetItem.classList.add("active");
 }
 
+function loadList(data) {
+  if (list.length === 0) {
+    list = data.data.waifus;
+  }
+  const ul = document.getElementById("waifu-list-simple");
+  ul.replaceChildren();
+  list.forEach((raw) => {
+    const waifu = JSON.parse(raw);
+    const rar = rarity(waifu.favs);
+    const li = document.createElement("li");
+    li.textContent = `${waifu.name} - ${rar} (${waifu.favs} favs)`;
+    li.classList.add("list-group-item");
+    li.style.backgroundColor = getColorByRarity(rar);
+    li.id = waifu.name;
+    ul.appendChild(li);
+    const listItem = document.getElementById(waifu.name);
+    listItem.addEventListener("click", () => {
+      currentIndex = list.indexOf(raw);
+      moveToIndex(currentIndex);
+    });
+  });
+  const waifuData = getCharacter(JSON.parse(list[0]).name);
+  waifuData.then((result) => {
+    appendListItem(
+      JSON.parse(list[0]).name,
+      result.waifuImg,
+      result.favs,
+      true,
+    );
+  });
+}
+
 addEventListener("DOMContentLoaded", async () => {
   WebSocket = await createConnection();
 
@@ -100,32 +136,7 @@ addEventListener("DOMContentLoaded", async () => {
       console.error("Failed to get user data:", data.message);
       return;
     }
-    list = data.data.waifus;
-    list.forEach((raw) => {
-      const waifu = JSON.parse(raw);
-      const rar = rarity(waifu.favs);
-      const ul = document.getElementById("waifu-list-simple");
-      const li = document.createElement("li");
-      li.textContent = `${waifu.name} - ${rar} (${waifu.favs} favs)`;
-      li.classList.add("list-group-item");
-      li.style.backgroundColor = getColorByRarity(rar);
-      li.id = waifu.name;
-      ul.appendChild(li);
-      const listItem = document.getElementById(waifu.name);
-      listItem.addEventListener("click", () => {
-        currentIndex = list.indexOf(raw);
-        moveToIndex(currentIndex);
-      });
-    });
-    const waifuData = getCharacter(JSON.parse(list[0]).name);
-    waifuData.then((result) => {
-      appendListItem(
-        JSON.parse(list[0]).name,
-        result.waifuImg,
-        result.favs,
-        true,
-      );
-    });
+    loadList(data);
   };
 
   const back = document.getElementById("back");
@@ -162,9 +173,9 @@ addEventListener("DOMContentLoaded", async () => {
   });
 
   const orderBySelect = document.getElementById("order-by");
-  orderBySelect.addEventListener("change", () => {
-    const session = cookieStore.get("session").value;
-    const userId = cookieStore.get("userId").value;
+  orderBySelect.addEventListener("change", async () => {
+    const session = (await cookieStore.get("session")).value;
+    const userId = (await cookieStore.get("userId")).value;
     WebSocket.send(
       JSON.stringify({
         type: "getData",

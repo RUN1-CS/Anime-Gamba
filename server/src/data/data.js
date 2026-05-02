@@ -38,7 +38,21 @@ async function getData(ws, data) {
 
     const row = res.rows[0];
 
-    const orderedWaifus = row.waifus.sort((a, b) => {
+    const waifusArray = Array.isArray(row.waifus) ? row.waifus : [];
+    const parsed = waifusArray.map((s) => {
+      try {
+        const obj = typeof s === "string" ? JSON.parse(s) : s;
+        return {
+          raw: s,
+          name: obj && obj.name ? String(obj.name) : "",
+          favs: Number(obj && obj.favs) || 0,
+        };
+      } catch (e) {
+        return { raw: s, name: "", favs: 0 };
+      }
+    });
+
+    parsed.sort((a, b) => {
       switch (data.orderby) {
         case "FAVOURITES_DESC":
           return b.favs - a.favs;
@@ -52,6 +66,8 @@ async function getData(ws, data) {
           return 0;
       }
     });
+
+    const orderedWaifus = parsed.map((p) => p.raw);
 
     ws.send(
       JSON.stringify({
