@@ -34,7 +34,7 @@ addEventListener("DOMContentLoaded", async () => {
         entry.innerHTML = `
         <div class="card mb-3 d-flex align-items-center bg-dark text-${textColor}" style="min-width: 300px;">
           <div class="card-body text-center">
-            <h5 class="card-title">${e.username}</h5>
+            <h5 class="card-title">${increment}. ${e.username}</h5>
             <p class="card-text">Score: ${e.score}</p>
           </div>
         </div>

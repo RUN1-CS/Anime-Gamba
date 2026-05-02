@@ -36,12 +36,11 @@ if(!isset($_COOKIE['session'])){
                     </div>
                 </div>
                 <div class="col-md-4 text-end">
-                    <script>
-                        if(cookieStore.get("session") && cookieStore.get("userId")){
-                            document.write('<button class="btn btn-secondary btn-sm" id="logout"><i class="nf nf-cod-sign_out"></i> Log Out</button>');
-                            document.write('<a href="/account/settings.php" class="btn btn-secondary btn-sm"><i class="nf nf-fa-user"> Account</i></a>');
-                        }
-                    </script>
+                    <?php
+                        if(isset($_COOKIE['session']) && isset($_COOKIE['userId'])) { ?>
+                            <button class="btn btn-secondary btn-sm" id="logout"><i class="nf nf-cod-sign_out"></i> Log Out</button>
+                            <a href="/account/settings.php" class="btn btn-secondary btn-sm"><i class="nf nf-fa-user"></i> Account</a>
+                    <?php } ?>
                 </div>
             </div>
         </div>
@@ -56,7 +55,7 @@ if(!isset($_COOKIE['session'])){
                 }else{
                     document.write('<a href="account/list.php" class="btn btn-primary btn-lg"><i class="nf nf-cod-sign_in"></i> See your list</a>');
                     document.write('<a href="account/friends.php" class="btn btn-secondary btn-lg ms-3"><i class="nf nf-fa-users"></i> See your friends</a>');
-                    document.write('<a href="account/leaderboard.php" class="btn btn-secondary btn-lg ms-3"><i class="nf nf-fa-trophy"></i> See the leaderboard</a>');
+                    document.write('<a href="leaderboard.php" class="btn btn-secondary btn-lg ms-3"><i class="nf nf-fa-trophy"></i> See the leaderboard</a>');
                 }
             </script>
         </div>
@@ -78,7 +77,7 @@ if(!isset($_COOKIE['session'])){
                     <div class="card h-100 shadow-lg bg-dark text-white border-0 hover-lift">
                         <div class="card-body d-flex justify-content-between align-items-center">
                             <h5 class="card-title mb-0 fw-bold"><i class="nf nf-weather-stars"></i> Coming Soon!</h5>
-                            <a href="games/spin.php" class="btn btn-secondary btn-sm"><i class="nf nf-fa-play"></i> Play</a>
+                            <a href="#" class="btn btn-secondary btn-sm"><i class="nf nf-fa-play"></i> Play</a>
                         </div>
                     </div>
                 </div>
