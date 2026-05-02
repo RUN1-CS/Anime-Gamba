@@ -1,23 +1,39 @@
+/**
+ * AnimeGamba WebSocket Server
+ *
+ * This file takes care of WebSocket comms.
+ * It bassically servers as a router for incoming messages, directing them to the appropriate handlers in the data and auth modules.
+ */
+
 const WebSocket = require("ws");
 
 const config = require("./config.json");
 
+// Importing all the necessary... all functions from other files. This keeps the code organized and modular.
 const { filterTokens, login, register } = require("./auth");
 const { getData, addWaifu, getTop } = require("./data/data");
 const { exportData, importData } = require("./data/utils");
 const { updateUserPassword, updateUserSettings } = require("./data/updates");
 const { getUsernameBySession } = require("./db");
+const { log } = require("./logging/logs");
 
 const { getCharacter } = require("./anilistAPI.js");
 
 const wss = new WebSocket.Server({ port: config.websocket.PORT || 3000 });
 
 wss.on("connection", (ws) => {
-  console.log("Client connected");
+  log(
+    `New client ${ws._socket.remoteAddress} connected. Total clients: ${wss.clients.size}`,
+    "info",
+    "websocket",
+  );
 
   ws.on("message", async (msg) => {
+    // Before processing any message, we filter out expired sessions to keep the database clean.
     await filterTokens();
+    // All comms is in JSON format, so parsing is done here.
     const data = JSON.parse(msg);
+    // We route the message to the appropriate handler based on the "type" field in the incoming data.
     switch (data.type) {
       case "login":
         await login(ws, data);
@@ -32,11 +48,12 @@ wss.on("connection", (ws) => {
         await addWaifu(ws, data);
         break;
       case "getCharacter":
+        // Handling errors.
         try {
           const character = await getCharacter(data.name);
           ws.send(JSON.stringify({ success: true, character }));
         } catch (err) {
-          console.error("getCharacter error:", err.message);
+          log(`Error fetching character data: ${err.message}`, "error", "api");
           ws.send(
             JSON.stringify({ success: false, message: "Character not found" }),
           );
@@ -62,10 +79,17 @@ wss.on("connection", (ws) => {
         );
         break;
       case "getTop":
+        // Sometimes we need to wait for our DB.
         const top = await getTop();
         ws.send(JSON.stringify({ success: true, top }));
         break;
       default:
+        // More error handling for unknown message types.
+        log(
+          `Received unknown message type: ${data.type} from ${ws._socket.remoteAddress}`,
+          "warn",
+          "websocket",
+        );
         ws.send(
           JSON.stringify({ success: false, message: "Unknown message type" }),
         );
@@ -73,14 +97,10 @@ wss.on("connection", (ws) => {
   });
 
   ws.on("close", () => {
-    console.log("Client disconnected");
+    log(`Client ${ws._socket.remoteAddress} disconnected`, "info", "websocket");
   });
 });
 
 wss.on("error", (error) => {
-  console.error("WebSocket error:", error);
+  log(`WebSocket error: ${error.message}`, "error", "websocket");
 });
-
-console.log(
-  `WebSocket server is running on ${config.websocket.protocol}://localhost:${config.websocket.PORT || 3000}`,
-);

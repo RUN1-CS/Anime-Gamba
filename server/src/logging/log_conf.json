@@ -1,0 +1,4 @@
+{
+  "types": ["info", "error", "warn", "debug"],
+  "sources": ["websocket", "database", "api", "auth", "startup", "encryption"]
+}

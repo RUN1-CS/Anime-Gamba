@@ -1,8 +1,14 @@
 import { rarity, getColorByRarity, createConnection } from "./module.js";
 
+/**
+ * Main JavaScript file for the gacha page. Handles WebSocket connection and updates the UI with gacha results.
+ * Most of it is on the server hehehe.
+ */
+
 addEventListener("DOMContentLoaded", async () => {
   WebSocket = await createConnection();
 
+  // When the WebSocket connection is opened, send a request to get the user data using the session and userId from cookies.
   WebSocket.onopen = async () => {
     const session = (await cookieStore.get("session")).value;
     const userId = (await cookieStore.get("userId")).value;
@@ -26,62 +32,17 @@ addEventListener("DOMContentLoaded", async () => {
 
   WebSocket.onmessage = (event) => {
     const data = JSON.parse(event.data);
+    console.log("Received data:", data);
     //const div = document.getElementById("gacha-result");
     const msg = document.getElementById("gacha-message");
     if (data.waifu) {
       if (data.success) {
         msg.textContent = `You got ${data.waifu} - ${data.favourites}!`;
         msg.style.color = getColorByRarity(rarity(data.favourites));
-        getCharacterByName(data.waifu).then((data) => {
-          if (data) {
-            document.getElementById("waifu-image").src = data.image.large;
-          }
-        });
+        document.getElementById("waifu-image").src = data.image.large;
       } else {
         msg.textContent = `Gacha failed: ${data.message}`;
       }
     }
   };
 });
-
-async function getCharacterByName(fullName) {
-  const url = "https://graphql.anilist.co";
-
-  const query = `
-    query ($name: String) {
-      Character (search: $name) {
-        name {
-          full
-        }
-        image {
-          large
-        }
-        gender
-      }
-    }`;
-
-  const variables = { name: fullName };
-
-  try {
-    const response = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query, variables }),
-    });
-
-    const result = await response.json();
-    const character = result.data.Character;
-    if (!character) {
-      return null;
-    }
-
-    if (character) {
-      // Optional: Double check if she is female
-      if (character.gender === "Female") {
-        return character;
-      }
-    }
-  } catch (error) {
-    console.error("Error fetching character:", error);
-  }
-}

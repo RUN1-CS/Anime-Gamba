@@ -1,5 +1,17 @@
 import { createConnection } from "./module.js";
 
+/**
+ * This file handles the authentication logic for the web application.
+ * It establishes a WebSocket connection to the server,
+ * listens for form submissions for login and registration,
+ * and manages user sessions using cookies.
+ *
+ * Upon successful login or registration, it redirects the user to the main page.
+ * It also handles logout functionality by clearing the session cookies and redirecting to the authentication page.
+ *
+ * Trust, it's not that deep.
+ */
+
 addEventListener("DOMContentLoaded", async () => {
   let WebSocket = await createConnection();
 

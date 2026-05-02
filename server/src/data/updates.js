@@ -1,6 +1,12 @@
+/**
+ * Updates users...
+ * It's called updates...
+ */
+
 const { pool } = require("../db");
 const { hash } = require("../auth");
 
+// Updates users password...
 async function updateUserPassword(userId, newPassword) {
   try {
     const hashedPassword = await hash(newPassword);
@@ -13,6 +19,7 @@ async function updateUserPassword(userId, newPassword) {
   }
 }
 
+// and settigns here
 async function updateUserSettings(userId, newUsername, newEmail) {
   try {
     await pool.query(

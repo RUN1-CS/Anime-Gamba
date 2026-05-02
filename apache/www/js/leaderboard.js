@@ -1,5 +1,11 @@
 import { createConnection } from "./module.js";
 
+/**
+ * This file is responsible for handling the leaderboard page.
+ * It connects to the WebSocket server, retrieves the top players and the current user's data,
+ * and updates the page accordingly.
+ */
+
 addEventListener("DOMContentLoaded", async () => {
   WebSocket = await createConnection();
 
@@ -19,6 +25,9 @@ addEventListener("DOMContentLoaded", async () => {
     );
   };
 
+  // Once we receive a message from the server,
+  // we check if it's successful and if it contains the top players data.
+  // If it does, we create a new entry for each player and append it to the leaderboard.
   WebSocket.onmessage = (event) => {
     const data = JSON.parse(event.data);
     if (!data.success) return;
@@ -31,6 +40,7 @@ addEventListener("DOMContentLoaded", async () => {
         else if (increment === 3) textColor = "bronze";
         const entry = document.createElement("div");
         entry.classList.add("entry");
+        // Cool card design, right? I know, I'm a genius.
         entry.innerHTML = `
         <div class="card mb-3 d-flex align-items-center bg-dark text-${textColor}" style="min-width: 300px;">
           <div class="card-body text-center">
@@ -40,9 +50,12 @@ addEventListener("DOMContentLoaded", async () => {
         </div>
       `;
         leaderboard.appendChild(entry);
+        // Little trolling, instead of i I used increment, because I am built different.
         increment++;
       });
     } else {
+      // No this ain't gambling propaganda, nuh uh
+      // Just maybe...
       usernamePage.textContent = data.data.username;
       valuePage.textContent = data.data.value;
       waifusPage.innerHTML =

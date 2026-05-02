@@ -1,3 +1,8 @@
+#!/bin/bash
+
+# This script adds the Nakano quintuplets as quints for a specified user in the animegamba server.
+# It also gives the option to wipe the user's data before adding the quints.
+
 id=1
 echo "Do you wish to wipe user data for user $id before adding quints? (y/n)"
 read -r answer

@@ -1,8 +1,23 @@
 import { rarity, getColorByRarity, createConnection } from "./module.js";
 
+/**
+ * Pain in the...
+ *
+ * This file is responsible for displaying the user's waifu list and handling interactions with it.
+ * It connects to the server via WebSocket to fetch the user's waifu data and updates the UI accordingly.
+ * The list is displayed in a carousel format, allowing users to navigate through their waifus and view details such as their name,
+ * rarity, and number of favorites.
+ * The code also handles sorting the list based on different criteria selected by the user.
+ *
+ * Overall, this file manages the dynamic display of the user's waifu collection and ensures a smooth user experience
+ *  when browsing through it.
+ *
+ */
+
 let list = [];
 let currentIndex = 0;
 
+// Detailed waifu info is fetched on demand to reduce initial load time and bandwidth usage
 async function getCharacter(fullName) {
   WebSocket.send(JSON.stringify({ type: "getCharacter", name: fullName }));
   return new Promise((resolve) => {
@@ -12,6 +27,8 @@ async function getCharacter(fullName) {
         const waifuData = JSON.parse(data.character);
         resolve({ waifuImg: waifuData.waifuImg, favs: waifuData.favs });
       } else if (data.success && data.data.waifus) {
+        // For some reason it captures all the WebSocket messages,
+        // so I also handle sorted list updates here
         list = data.data.waifus;
         loadList();
         resolve(null);
@@ -23,6 +40,8 @@ async function getCharacter(fullName) {
   });
 }
 
+// Appends a new waifu to the carousel list with the provided details
+// It's just DOM manipulation, nothing special here
 function appendListItem(waifu, img, favs, active = false) {
   const listElement = document.getElementById("waifu-list");
   const listItem = document.createElement("div");
@@ -43,6 +62,7 @@ function appendListItem(waifu, img, favs, active = false) {
   listItem.classList.add("active");
 }
 
+// Loads the waifu at the specified index into the carousel if it's not already loaded
 function loadWaifu(index) {
   const carousel = document.getElementById("waifu-carousel");
   const targetItem = carousel.children[index];
@@ -61,6 +81,8 @@ function loadWaifu(index) {
   });
 }
 
+// Index jumping function for list items,
+// allows users to click on a waifu in the list and jump directly to it in the carousel
 function moveToIndex(index) {
   loadWaifu(index);
   const carousel = document.getElementById("waifu-carousel");
@@ -70,11 +92,14 @@ function moveToIndex(index) {
   if (targetItem) targetItem.classList.add("active");
 }
 
+// I had to use it twice so it's a function now,
+// it takes the waifu data and populates the list on the left side of the page
 function loadList(data) {
   if (list.length === 0) {
     list = data.data.waifus;
   }
   const ul = document.getElementById("waifu-list-simple");
+  // Clear existing list items before repopulating
   ul.replaceChildren();
   list.forEach((raw) => {
     const waifu = JSON.parse(raw);
@@ -91,6 +116,7 @@ function loadList(data) {
       moveToIndex(currentIndex);
     });
   });
+  // Load the first waifu into the carousel by default
   const waifuData = getCharacter(JSON.parse(list[0]).name);
   waifuData.then((result) => {
     appendListItem(
@@ -102,12 +128,15 @@ function loadList(data) {
   });
 }
 
+// Main entry point, sets up WebSocket connection and event listeners for user interactions
 addEventListener("DOMContentLoaded", async () => {
   WebSocket = await createConnection();
 
   WebSocket.onopen = async () => {
+    // Fetch the user's waifu data as soon as the WebSocket connection is established
     const session = (await cookieStore.get("session")).value;
     const userId = (await cookieStore.get("userId")).value;
+    // Request the waifu data sorted by favorites in descending order by default
     WebSocket.send(
       JSON.stringify({
         type: "getData",
@@ -139,6 +168,7 @@ addEventListener("DOMContentLoaded", async () => {
     loadList(data);
   };
 
+  // Set up event listeners for the carousel navigation buttons and the sorting dropdown
   const back = document.getElementById("back");
   const next = document.getElementById("next");
 
@@ -172,6 +202,8 @@ addEventListener("DOMContentLoaded", async () => {
     }, 3000);
   });
 
+  // Set up event listener for the sorting dropdown,
+  // sends a request to the server to fetch the waifu data sorted by the selected criteria
   const orderBySelect = document.getElementById("order-by");
   orderBySelect.addEventListener("change", async () => {
     const session = (await cookieStore.get("session")).value;
