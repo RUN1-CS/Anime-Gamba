@@ -5,7 +5,7 @@ const { getCharacter } = require("../anilistAPI.js");
 
 async function exportData(ws, data) {
   try {
-    if (!data.session) {
+    if (!data || !data.session || !data.userId) {
       ws.send(JSON.stringify({ success: false, message: "Missing session" }));
       return;
     }
@@ -42,7 +42,7 @@ async function exportData(ws, data) {
       }),
     );
   } catch (err) {
-    console.error("requestExport error:", err.message);
+    console.error("requestExport error:", err);
     ws.send(JSON.stringify({ success: false, message: "Database error" }));
   }
 }

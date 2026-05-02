@@ -11,7 +11,7 @@ A stylish anime-themed gambling simulation project.
 ## Installation and Usage
 
 ```bash
-git clone https://github.com/mysterio/AnimeGamba.git
+git clone https://github.com/RUN1-CS/AnimeGamba.git
 cd AnimeGamba
 cp .env.example .env
 cp ./server/src/config.json.example ./server/src/config.json
