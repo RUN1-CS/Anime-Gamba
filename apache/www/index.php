@@ -41,6 +41,7 @@ if(!isset($_COOKIE['session'])){
                             <button class="btn btn-secondary btn-sm" id="logout"><i class="nf nf-cod-sign_out"></i> Log Out</button>
                             <a href="/account/settings.php" class="btn btn-secondary btn-sm"><i class="nf nf-fa-user"></i> Account</a>
                     <?php } ?>
+                    <a href="/about.php" class="btn btn-secondary btn-sm"><i class="nf nf-oct-info"></i> About</a>
                 </div>
             </div>
         </div>

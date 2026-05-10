@@ -1,5 +1,10 @@
 #!/bin/bash
 
+echo "Anime Gamba  Copyright (C) 2026  RUN1/RUN1-CS";
+echo "This program comes with ABSOLUTELY NO WARRANTY.";
+echo "This is free software, and you are welcome to redistribute it.";
+echo "under certain conditions; please visit the /about page for more details.";
+
 # This script adds the Nakano quintuplets as quints for a specified user in the animegamba server.
 # It also gives the option to wipe the user's data before adding the quints.
 

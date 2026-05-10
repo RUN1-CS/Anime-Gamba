@@ -1,4 +1,24 @@
 /**
+ *  AnimeGamba - A web application that provides users with a randomly selected
+ *  female anime character (waifu) from the AniList database, along with their popularity
+ *  (favourites count). Users can also search for specific characters by name to view their details.
+ *  Copyright (C) 2026  RUN1/RUN1-CS
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/**
  * Utility functions for handling user data, including exporting and importing user data,
  *  adding and removing waifus, and wiping user data.
  * These functions interact with the database and the AniList API to manage user information and waifu collections.
