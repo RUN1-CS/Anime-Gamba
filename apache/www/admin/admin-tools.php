@@ -14,17 +14,33 @@ try{
     die("Database connection failed: " . $e->getMessage());
 }
 
-$stmt = $pdo->prepare("SELECT username FROM sessions WHERE session_id = :sessionId");
-$stmt->execute(['sessionId' => $sessionId]);
-$username = $stmt->fetchColumn();
-
-$stmt = $pdo->prepare("SELECT admin FROM users WHERE username = :username");
-$stmt->execute(['username' => $username]);
-$isAdmin = $stmt->fetchColumn();
-
-if (!$isAdmin) {
-    header("Location: /");
+if (empty($_COOKIE['session'])) {
+    http_response_code(403);
+    echo "Unauthorized";
     exit();
-}else{
-    define('ADMINACCESS', true);
 }
+
+$stmt = $pdo->prepare(
+    "SELECT u.admin, s.token
+     FROM sessions s
+     JOIN users u ON u.id = s.user_id"
+);
+$stmt->execute();
+
+$adminValue = false;
+while ($session = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    if (password_verify($_COOKIE['session'], $session['token'])) {
+        $adminValue = is_bool($session['admin'])
+            ? $session['admin']
+            : in_array(strtolower((string) $session['admin']), ['1', 't', 'true'], true);
+        break;
+    }
+}
+
+if (!$adminValue) {
+    http_response_code(403);
+    echo "Unauthorized";
+    exit();
+}
+
+define('ADMINACCESS', true);

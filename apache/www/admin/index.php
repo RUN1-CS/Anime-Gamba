@@ -23,7 +23,7 @@ if(!defined('ADMINACCESS')) {
                 <input type="text" id="search-bar" name="search-bar">
                 <button type="submit">Search</button>
             </form>
-            <div class="container bg-dark">
+            <div class="container bg-dark text-light">
                 <?php
                     if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['search-bar'])) {
                         $searchTerm = $_POST['search-bar'];
