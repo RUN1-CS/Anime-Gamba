@@ -32,14 +32,13 @@ addEventListener("DOMContentLoaded", async () => {
 
   WebSocket.onmessage = (event) => {
     const data = JSON.parse(event.data);
-    console.log("Received data:", data);
     //const div = document.getElementById("gacha-result");
     const msg = document.getElementById("gacha-message");
     if (data.waifu) {
       if (data.success) {
         msg.textContent = `You got ${data.waifu} - ${data.favourites}!`;
         msg.style.color = getColorByRarity(rarity(data.favourites));
-        document.getElementById("waifu-image").src = data.image.large;
+        document.getElementById("waifu-image").src = data.image;
       } else {
         msg.textContent = `Gacha failed: ${data.message}`;
       }

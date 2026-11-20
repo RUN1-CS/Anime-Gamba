@@ -10,5 +10,13 @@
   "websocket": {
     "PORT": 3000,
     "protocol": "ws"
+  },
+  "AniListAPI": {
+    "URL": "https://graphql.anilist.co",
+    "Pages": 20,
+    "RateLimitDelay": 2500,
+    "PageCacheTTL": 60000,
+    "RecentMemory": 30,
+    "MaxAttempts": 6
   }
 }
